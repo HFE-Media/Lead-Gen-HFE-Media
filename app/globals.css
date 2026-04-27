@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  background: #0b0b0b;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top right, rgba(201, 154, 50, 0.16), transparent 24%),
+    radial-gradient(circle at top left, rgba(243, 211, 107, 0.08), transparent 18%),
+    #0b0b0b;
+  color: #ffffff;
+}
+
+* {
+  border-color: #2a2a2a;
+}
+
+::selection {
+  background: rgba(201, 154, 50, 0.32);
+  color: #ffffff;
+}
+
+.panel {
+  @apply rounded-3xl border border-border bg-card/90 shadow-glow backdrop-blur-sm;
+}
+
+.muted {
+  @apply text-sm text-muted;
+}
+
+.gold-ring {
+  box-shadow: 0 0 0 1px rgba(201, 154, 50, 0.3);
+}
+
+.data-table th {
+  @apply border-b border-border px-4 py-3 text-left text-xs uppercase tracking-[0.24em] text-muted;
+}
+
+.data-table td {
+  @apply border-b border-border/80 px-4 py-4 text-sm text-white;
+}
