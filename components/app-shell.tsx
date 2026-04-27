@@ -21,7 +21,7 @@ export function AppShell({
   currentPath: string;
 }) {
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-[1600px] gap-6 px-4 py-6 md:px-6">
+    <div className="mx-auto flex min-h-screen w-full max-w-[1600px] gap-4 px-3 py-4 sm:gap-6 sm:px-4 sm:py-6 md:px-6">
       <aside className="panel hidden w-72 shrink-0 flex-col justify-between p-5 lg:flex">
         <div className="space-y-8">
           <LogoBadge />
@@ -55,11 +55,11 @@ export function AppShell({
           </p>
         </div>
       </aside>
-      <main className="flex-1 space-y-6">
-        <div className="panel flex items-center justify-between p-4 lg:hidden">
+      <main className="min-w-0 flex-1 space-y-4 sm:space-y-6">
+        <div className="panel sticky top-3 z-20 flex items-center justify-center p-3 lg:hidden">
           <LogoBadge compact />
         </div>
-        <div className="panel overflow-x-auto p-2 lg:hidden">
+        <div className="panel sticky top-[86px] z-20 overflow-x-auto p-2 lg:hidden">
           <div className="flex min-w-max gap-2">
             {links.map((link) => {
               const Icon = link.icon;
@@ -70,7 +70,7 @@ export function AppShell({
                   key={link.href}
                   href={link.href}
                   className={cn(
-                    "flex items-center gap-2 rounded-2xl border px-4 py-3 text-sm transition",
+                    "flex items-center gap-2 whitespace-nowrap rounded-2xl border px-3 py-2.5 text-sm transition",
                     active
                       ? "border-gold/30 bg-gold/10 text-white"
                       : "border-transparent text-muted hover:border-border hover:bg-white/[0.03] hover:text-white"

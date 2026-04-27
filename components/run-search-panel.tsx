@@ -91,7 +91,7 @@ export function RunSearchPanel({
   return (
     <div className="space-y-6">
       <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
-        <section className="panel p-6">
+        <section className="panel p-5 sm:p-6">
           <p className="text-xs uppercase tracking-[0.28em] text-muted">Execution controls</p>
           <h1 className="mt-3 font-display text-4xl text-white">Run lead extraction</h1>
           <p className="mt-3 max-w-xl text-sm leading-6 text-muted">
@@ -122,7 +122,7 @@ export function RunSearchPanel({
               />
             </label>
           </div>
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <button
               type="button"
               onClick={handleRun}
@@ -145,8 +145,8 @@ export function RunSearchPanel({
           ) : null}
         </section>
 
-        <section className="panel p-6">
-          <div className="flex items-center justify-between">
+        <section className="panel p-5 sm:p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-xs uppercase tracking-[0.28em] text-muted">Progress</p>
               <h2 className="mt-2 font-display text-3xl text-white">{progress}% complete</h2>
@@ -161,7 +161,7 @@ export function RunSearchPanel({
               style={{ width: `${progress}%` }}
             />
           </div>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-6 grid gap-4 grid-cols-2 xl:grid-cols-4">
             <MetricCard label="Leads Added" value={stats.leadsAdded} />
             <MetricCard label="Duplicates / Skips" value={stats.leadsSkipped} />
             <MetricCard label="Details Checked" value={stats.placeDetailsChecked} />
@@ -170,14 +170,14 @@ export function RunSearchPanel({
         </section>
       </div>
 
-      <section className="panel p-6">
+      <section className="panel p-5 sm:p-6">
         <p className="text-xs uppercase tracking-[0.28em] text-muted">Run log</p>
         <h2 className="mt-2 font-display text-2xl text-white">Term-by-term progress</h2>
         <div className="mt-6 space-y-3">
           {log.map((item, index) => (
             <div
               key={`${item.term}-${index}`}
-              className="flex flex-col justify-between gap-2 rounded-3xl border border-border bg-background px-4 py-4 md:flex-row md:items-center"
+              className="flex flex-col justify-between gap-3 rounded-3xl border border-border bg-background px-4 py-4 md:flex-row md:items-center"
             >
               <div>
                 <p className="text-sm font-medium text-white">{item.term}</p>

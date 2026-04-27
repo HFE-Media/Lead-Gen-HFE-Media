@@ -284,9 +284,11 @@ export function SearchTermGenerator({ dataset }: { dataset: GeneratorDataset }) 
 
   return (
     <div className="space-y-6">
-      <header className="panel p-6">
+      <header className="panel p-5 sm:p-6">
         <p className="text-xs uppercase tracking-[0.28em] text-muted">Search Term Generator</p>
-        <h1 className="mt-3 font-display text-4xl text-white">Build 50k+ database-driven search combinations.</h1>
+        <h1 className="mt-3 font-display text-3xl leading-tight text-white sm:text-4xl">
+          Build 50k+ database-driven search combinations.
+        </h1>
         <p className="mt-3 max-w-3xl text-sm leading-7 text-muted">
           Import categories, locations, and patterns from CSV, generate dynamic Google Places search terms from
           Supabase data, preview the output, export it, and push only new terms into the main queue.
@@ -314,7 +316,8 @@ export function SearchTermGenerator({ dataset }: { dataset: GeneratorDataset }) 
 
       {!dataset.setupRequired ? (
         <>
-          <div className="flex flex-wrap gap-3">
+          <div className="-mx-1 overflow-x-auto pb-1">
+            <div className="flex min-w-max gap-3 px-1">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
@@ -329,6 +332,7 @@ export function SearchTermGenerator({ dataset }: { dataset: GeneratorDataset }) 
                 {tab.label}
               </button>
             ))}
+            </div>
           </div>
 
           {message ? (
@@ -338,7 +342,7 @@ export function SearchTermGenerator({ dataset }: { dataset: GeneratorDataset }) 
           {activeTab === "generate" ? (
             <section className="grid gap-6 2xl:grid-cols-[minmax(0,1.18fr)_minmax(420px,0.82fr)]">
               <div className="min-w-0 space-y-6">
-                <div className="panel p-6">
+                <div className="panel p-5 sm:p-6">
                   <div className="grid gap-6 lg:grid-cols-2">
                     <div>
                       <p className="text-xs uppercase tracking-[0.24em] text-muted">Category Groups</p>
@@ -430,7 +434,7 @@ export function SearchTermGenerator({ dataset }: { dataset: GeneratorDataset }) 
                 />
               </div>
 
-              <div className="panel min-w-0 p-6">
+              <div className="panel min-w-0 p-5 sm:p-6">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
                     <p className="text-xs uppercase tracking-[0.24em] text-muted">Preview Builder</p>
@@ -449,14 +453,14 @@ export function SearchTermGenerator({ dataset }: { dataset: GeneratorDataset }) 
                   </select>
                 </div>
 
-                <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                <div className="mt-6 grid gap-4 grid-cols-2">
                   <MetricBox label="Selected Categories" value={selectedCategories.length} />
                   <MetricBox label="Selected Locations" value={selectedLocations.length} />
                   <MetricBox label="Active Patterns" value={activePatterns.length} />
                   <MetricBox label="Raw Combinations" value={rawCombinationCount.toLocaleString()} />
                 </div>
 
-                <div className="mt-6 flex flex-wrap gap-3">
+                <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                   <button
                     type="button"
                     onClick={generatePreview}
@@ -491,7 +495,7 @@ export function SearchTermGenerator({ dataset }: { dataset: GeneratorDataset }) 
                       {previewDrafts.length.toLocaleString()} terms ready. Showing the first {Math.min(previewRows.length, 250)} rows.
                     </p>
                   </div>
-                  <div className="max-h-[520px] overflow-auto">
+                  <div className="max-h-[420px] overflow-auto sm:max-h-[520px]">
                     <table className="data-table min-w-full">
                       <thead>
                         <tr>
@@ -583,20 +587,20 @@ export function SearchTermGenerator({ dataset }: { dataset: GeneratorDataset }) 
 
           {activeTab === "generated" ? (
         <section className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-4">
+          <div className="grid gap-6 grid-cols-2 md:grid-cols-4">
             <MetricBox label="Total Generated" value={generatedCounts.total.toLocaleString()} />
             <MetricBox label="Pending" value={generatedCounts.pending.toLocaleString()} />
             <MetricBox label="Queued" value={generatedCounts.queued.toLocaleString()} />
             <MetricBox label="Skipped" value={generatedCounts.skipped.toLocaleString()} />
           </div>
 
-          <div className="panel p-6">
+          <div className="panel p-5 sm:p-6">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <p className="text-xs uppercase tracking-[0.24em] text-muted">Generated Terms</p>
                 <h2 className="mt-2 font-display text-3xl text-white">Manage staged generator output</h2>
               </div>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <a
                   href="/api/generator/generated-terms/export"
                   className="inline-flex h-12 items-center gap-2 rounded-2xl border border-border bg-background px-5 font-medium text-white transition hover:border-gold"
@@ -664,9 +668,9 @@ export function SearchTermGenerator({ dataset }: { dataset: GeneratorDataset }) 
 
 function MetricBox({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="panel p-5">
+    <div className="panel p-4 sm:p-5">
       <p className="text-xs uppercase tracking-[0.24em] text-muted">{label}</p>
-      <p className="mt-3 font-display text-3xl text-white">{value}</p>
+      <p className="mt-3 font-display text-2xl text-white sm:text-3xl">{value}</p>
     </div>
   );
 }
@@ -688,7 +692,7 @@ function ProgressPanel({
 
   return (
     <div className={className}>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm font-medium text-white">{label}</p>
         <p className="text-sm text-muted">
           {processed.toLocaleString()} / {total.toLocaleString()}
@@ -727,8 +731,8 @@ function SelectionCard<T extends { id: string }>({
 }) {
   return (
     <div className="panel min-w-0 overflow-hidden">
-      <div className="border-b border-border px-5 py-4">
-        <div className="flex items-center justify-between gap-3">
+      <div className="border-b border-border px-4 py-4 sm:px-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.24em] text-muted">{title}</p>
             <p className="mt-1 text-sm text-muted">
@@ -745,11 +749,11 @@ function SelectionCard<T extends { id: string }>({
           </div>
         </div>
       </div>
-      <div className="max-h-[360px] overflow-auto divide-y divide-border">
+      <div className="max-h-[320px] overflow-auto divide-y divide-border sm:max-h-[360px]">
         {items.map((item) => {
           const active = selectedIds.includes(item.id);
           return (
-            <label key={item.id} className="flex items-start gap-3 px-5 py-3">
+            <label key={item.id} className="flex items-start gap-3 px-4 py-3 sm:px-5">
               <input type="checkbox" checked={active} onChange={() => onToggle(item.id)} className="mt-1 h-4 w-4 accent-[#C99A32]" />
               <div className="min-w-0">
                 <p className="break-words text-sm font-medium text-white">{labelFor(item)}</p>
@@ -799,14 +803,14 @@ function DatasetTab<T extends { id: string }>({
 }) {
   return (
     <section className="panel overflow-hidden">
-      <div className="border-b border-border px-6 py-5">
-        <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="border-b border-border px-5 py-5 sm:px-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.24em] text-muted">{title}</p>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">{description}</p>
             <p className="mt-2 text-xs text-muted">{importHint}</p>
           </div>
-          <label className="inline-flex cursor-pointer items-center gap-2 rounded-2xl border border-gold/30 bg-gold px-4 py-3 text-sm font-medium text-background">
+          <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-gold/30 bg-gold px-4 py-3 text-sm font-medium text-background">
             <Upload className="h-4 w-4" />
             Import CSV
             <input type="file" accept=".csv,text/csv" className="hidden" onChange={(event) => onImport(event.target.files?.[0] ?? null)} />

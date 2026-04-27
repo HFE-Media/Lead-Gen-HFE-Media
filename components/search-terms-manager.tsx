@@ -53,7 +53,7 @@ export function SearchTermsManager({ terms }: { terms: SearchTerm[] }) {
   return (
     <div className="space-y-6">
       <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
-        <section className="panel p-6">
+        <section className="panel p-5 sm:p-6">
           <p className="text-xs uppercase tracking-[0.28em] text-muted">Add one term</p>
           <h2 className="mt-3 font-display text-3xl text-white">Manual keyword entry</h2>
           <p className="mt-2 max-w-xl text-sm leading-6 text-muted">
@@ -89,7 +89,7 @@ export function SearchTermsManager({ terms }: { terms: SearchTerm[] }) {
           </div>
         </section>
 
-        <section className="panel p-6">
+        <section className="panel p-5 sm:p-6">
           <p className="text-xs uppercase tracking-[0.28em] text-muted">Bulk import</p>
           <h2 className="mt-3 font-display text-3xl text-white">Paste a full list</h2>
           <p className="mt-2 max-w-xl text-sm leading-6 text-muted">
@@ -139,7 +139,7 @@ export function SearchTermsManager({ terms }: { terms: SearchTerm[] }) {
             <h2 className="mt-2 font-display text-2xl text-white">{terms.length} search terms loaded</h2>
           </div>
         </div>
-        <div className="overflow-x-auto">
+        <div className="hidden overflow-x-auto md:block">
           <table className="data-table min-w-full">
             <thead>
               <tr>
@@ -181,6 +181,35 @@ export function SearchTermsManager({ terms }: { terms: SearchTerm[] }) {
               ) : null}
             </tbody>
           </table>
+        </div>
+        <div className="space-y-3 p-4 md:hidden">
+          {terms.map((term) => (
+            <div key={term.id} className="rounded-3xl border border-border bg-background p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-medium text-white">{term.term}</p>
+                  <p className="mt-1 text-sm text-muted">{getRegionLabel(term.region)}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeTerm(term.id)}
+                  className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-border bg-background text-muted transition hover:border-gold hover:text-white"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <StatusPill status={term.status} />
+                <span className="text-sm text-muted">{term.result_count} results</span>
+              </div>
+              <p className="mt-3 text-sm text-muted">Searched: {formatDate(term.searched_at)}</p>
+            </div>
+          ))}
+          {terms.length === 0 ? (
+            <p className="py-6 text-center text-sm text-muted">
+              No search terms yet. Add your first niche and location combination above.
+            </p>
+          ) : null}
         </div>
       </section>
     </div>
