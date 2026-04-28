@@ -267,7 +267,7 @@ export function LeadsTable({ leads, mode = "crm" }: LeadsTableProps) {
       {editorOpen && selectedLead ? (
         <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/70 p-3 backdrop-blur-sm sm:p-6">
           <div className="max-h-[92vh] w-full max-w-4xl overflow-hidden rounded-[28px] border border-border bg-card shadow-glow">
-            <div className="max-h-[92vh] overflow-y-auto p-5 sm:p-6">
+            <div className="max-h-[92vh] overflow-y-auto p-5 sm:p-7">
               <LeadEditor
                 lead={selectedLead}
                 saving={saving}
@@ -304,12 +304,12 @@ function LeadEditor({
   onSave: () => void;
 }) {
   return (
-    <div className="space-y-5">
-      <div className="flex items-start justify-between gap-4">
+    <div className="space-y-6">
+      <div className="flex items-start justify-between gap-4 border-b border-border/80 pb-5">
         <div>
-          <p className="text-xs uppercase tracking-[0.28em] text-muted">Lead Profile</p>
-          <h2 className="mt-2 font-display text-3xl text-white">{lead.name}</h2>
-          <p className="mt-2 text-sm leading-6 text-muted">{lead.formatted_address ?? "Unknown address"}</p>
+          <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-muted">Lead Profile</p>
+          <h2 className="mt-2 text-2xl font-semibold leading-tight text-white sm:text-[2rem]">{lead.name}</h2>
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-muted">{lead.formatted_address ?? "Unknown address"}</p>
         </div>
         <button
           type="button"
@@ -321,11 +321,11 @@ function LeadEditor({
         </button>
       </div>
 
-      <div className="flex flex-col gap-4">
+      <div className="space-y-4">
         <div className="flex flex-wrap gap-3">
           <a
             href={lead.formatted_phone_number ? `tel:${lead.formatted_phone_number}` : undefined}
-            className="inline-flex h-11 items-center gap-2 rounded-2xl border border-gold/30 bg-gold px-4 font-medium text-background transition hover:bg-lightGold"
+            className="inline-flex h-11 items-center gap-2 rounded-2xl border border-gold/30 bg-gold px-4 text-sm font-medium text-background transition hover:bg-lightGold"
           >
             <Phone className="h-4 w-4" />
             Call Lead
@@ -334,7 +334,7 @@ function LeadEditor({
             type="button"
             onClick={onSave}
             disabled={saving}
-            className="inline-flex h-11 items-center gap-2 rounded-2xl border border-border bg-background px-4 font-medium text-white transition hover:border-gold disabled:opacity-50"
+            className="inline-flex h-11 items-center gap-2 rounded-2xl border border-border bg-background px-4 text-sm font-medium text-white transition hover:border-gold disabled:opacity-50"
           >
             <Save className="h-4 w-4" />
             {saving ? "Saving..." : "Save Update"}
@@ -408,7 +408,7 @@ function LeadEditor({
         </Field>
       </div>
 
-      <Field label="Assigned agent">
+        <Field label="Assigned agent">
         <input
           type="text"
           value={lead.assigned_agent ?? ""}
@@ -434,7 +434,7 @@ function LeadEditor({
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-2 block text-xs uppercase tracking-[0.24em] text-muted">{label}</span>
+      <span className="mb-2 block text-[11px] font-medium uppercase tracking-[0.2em] text-muted">{label}</span>
       {children}
     </label>
   );
