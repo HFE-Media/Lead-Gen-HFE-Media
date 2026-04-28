@@ -31,7 +31,7 @@ export default async function CallTrackerPage() {
             <h2 className="mt-2 font-display text-2xl text-white">Performance over the last 5 business days</h2>
           </div>
           <div className="border-b border-border/80 px-6 py-4">
-            <div className="flex flex-wrap gap-4 text-xs uppercase tracking-[0.18em] text-muted">
+            <div className="flex flex-wrap justify-center gap-4 text-xs uppercase tracking-[0.18em] text-muted">
               <LegendPill label="Contacted" tone="bg-gold" />
               <LegendPill label="Interested" tone="bg-lightGold" />
               <LegendPill label="Won" tone="bg-white" />
