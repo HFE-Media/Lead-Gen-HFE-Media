@@ -37,23 +37,25 @@ export default async function CallTrackerPage() {
               <LegendPill label="Won" tone="bg-white" />
             </div>
           </div>
-          <div className="space-y-3 px-6 py-6">
-            {metrics.activitySeries.map((item) => (
-              <div
-                key={item.date}
-                className="grid gap-4 rounded-3xl border border-border/80 bg-background/70 p-4 transition hover:border-gold/30 sm:grid-cols-[92px_minmax(0,1fr)] sm:items-center"
-              >
-                <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-muted">{item.date.slice(5)}</p>
-                  <p className="mt-1 text-sm text-white">{formatDayLabel(item.date)}</p>
+          <div className="px-4 py-6 sm:px-6">
+            <div className="grid min-h-[360px] grid-cols-5 gap-3 sm:gap-4">
+              {metrics.activitySeries.map((item) => (
+                <div
+                  key={item.date}
+                  className="flex min-w-0 flex-col justify-end rounded-3xl border border-border/80 bg-background/70 p-3 sm:p-4"
+                >
+                  <div className="flex flex-1 items-end justify-center gap-2 sm:gap-3">
+                    <VerticalBar label="Contacted" value={item.contacted} max={maxActivity} tone="bg-gold" />
+                    <VerticalBar label="Interested" value={item.interested} max={maxActivity} tone="bg-lightGold" />
+                    <VerticalBar label="Won" value={item.won} max={maxActivity} tone="bg-white" />
+                  </div>
+                  <div className="mt-4 border-t border-border/80 pt-3 text-center">
+                    <p className="text-xs uppercase tracking-[0.2em] text-muted">{item.date.slice(5)}</p>
+                    <p className="mt-1 text-sm text-white">{formatDayLabel(item.date)}</p>
+                  </div>
                 </div>
-                <div className="space-y-3">
-                  <MetricBar label="Contacted" value={item.contacted} max={maxActivity} tone="bg-gold" />
-                  <MetricBar label="Interested" value={item.interested} max={maxActivity} tone="bg-lightGold" />
-                  <MetricBar label="Won" value={item.won} max={maxActivity} tone="bg-white" />
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
 
@@ -109,7 +111,7 @@ function LegendPill({ label, tone }: { label: string; tone: string }) {
   );
 }
 
-function MetricBar({
+function VerticalBar({
   label,
   value,
   max,
@@ -121,14 +123,17 @@ function MetricBar({
   tone: string;
 }) {
   return (
-    <div>
-      <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.16em] text-muted">
-        <span>{label}</span>
-        <span>{value}</span>
+    <div className="flex flex-1 flex-col items-center justify-end gap-2">
+      <span className="text-[11px] text-muted">{value}</span>
+      <div className="flex h-56 w-full max-w-10 items-end rounded-full bg-card/70 p-1 sm:max-w-12">
+        <div
+          className={`w-full rounded-full ${tone}`}
+          style={{ height: `${value === 0 ? 8 : Math.max(10, Math.round((value / max) * 100))}%` }}
+          aria-label={`${label}: ${value}`}
+          title={`${label}: ${value}`}
+        />
       </div>
-      <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-card">
-        <div className={`h-full rounded-full ${tone}`} style={{ width: `${Math.max(6, Math.round((value / max) * 100))}%` }} />
-      </div>
+      <span className="text-[10px] uppercase tracking-[0.16em] text-muted">{label.slice(0, 3)}</span>
     </div>
   );
 }
