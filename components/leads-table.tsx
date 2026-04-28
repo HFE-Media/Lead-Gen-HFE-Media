@@ -386,6 +386,19 @@ function LeadEditor({
             className="h-11 w-full rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold"
           />
         </Field>
+      </div>
+
+      <Field label="Assigned agent">
+        <input
+          type="text"
+          value={lead.assigned_agent ?? ""}
+          onChange={(event) => onChange(lead.id, "assigned_agent", event.target.value || null)}
+          placeholder="HFE Media"
+          className="h-11 w-full rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold"
+        />
+      </Field>
+
+      <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Quoted amount">
           <input
             type="number"
@@ -407,16 +420,6 @@ function LeadEditor({
           />
         </Field>
       </div>
-
-      <Field label="Assigned agent">
-        <input
-          type="text"
-          value={lead.assigned_agent ?? ""}
-          onChange={(event) => onChange(lead.id, "assigned_agent", event.target.value || null)}
-          placeholder="HFE Media"
-          className="h-11 w-full rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold"
-        />
-      </Field>
 
       <Field label="Call notes">
         <textarea
