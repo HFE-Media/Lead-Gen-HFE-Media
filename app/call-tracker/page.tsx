@@ -28,7 +28,7 @@ export default async function CallTrackerPage() {
         <div className="panel overflow-hidden">
           <div className="border-b border-border px-6 py-5">
             <p className="text-xs uppercase tracking-[0.28em] text-muted">Sales Activity</p>
-            <h2 className="mt-2 font-display text-2xl text-white">Performance over the last 7 days</h2>
+            <h2 className="mt-2 font-display text-2xl text-white">Performance over the last 5 business days</h2>
           </div>
           <div className="border-b border-border/80 px-6 py-4">
             <div className="flex flex-wrap gap-4 text-xs uppercase tracking-[0.18em] text-muted">

@@ -14,6 +14,27 @@ import type {
   TermPattern
 } from "@/lib/types";
 
+function isWeekend(date: Date) {
+  const day = date.getDay();
+  return day === 0 || day === 6;
+}
+
+function getRecentBusinessDays(count: number) {
+  const days: Date[] = [];
+  const cursor = new Date();
+  cursor.setHours(0, 0, 0, 0);
+
+  while (days.length < count) {
+    if (!isWeekend(cursor)) {
+      days.unshift(new Date(cursor));
+    }
+
+    cursor.setDate(cursor.getDate() - 1);
+  }
+
+  return days;
+}
+
 function emptyDashboardMetrics(): DashboardMetrics {
   return {
     totalLeads: 0,
@@ -42,8 +63,8 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
   const today = new Date();
   const endDate = new Date(today);
   endDate.setHours(23, 59, 59, 999);
-  const startDate = new Date(today);
-  startDate.setDate(today.getDate() - 6);
+  const businessDays = getRecentBusinessDays(5);
+  const startDate = new Date(businessDays[0]);
   startDate.setHours(0, 0, 0, 0);
 
   const [
@@ -94,9 +115,7 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
   }>;
 
   const dateMap = new Map<string, { date: string; contacted: number; interested: number; won: number }>();
-  for (let index = 0; index < 7; index += 1) {
-    const date = new Date(startDate);
-    date.setDate(startDate.getDate() + index);
+  for (const date of businessDays) {
     const key = date.toISOString().slice(0, 10);
     dateMap.set(key, { date: key, contacted: 0, interested: 0, won: 0 });
   }
