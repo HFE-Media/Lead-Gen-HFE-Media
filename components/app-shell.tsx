@@ -1,9 +1,9 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, ListChecks, PhoneCall, PlayCircle, Search, Settings, Users } from "lucide-react";
+import { LayoutDashboard, ListChecks, Menu, PhoneCall, PlayCircle, Search, Settings, Users, X } from "lucide-react";
 import { LogoBadge } from "@/components/logo-badge";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +23,7 @@ export function AppShell({
   children: ReactNode;
 }) {
   const currentPath = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-[1520px] items-start gap-4 px-3 py-4 sm:gap-6 sm:px-4 sm:py-6 md:px-6">
@@ -60,32 +61,45 @@ export function AppShell({
         </div>
       </aside>
       <main className="min-w-0 flex-1 space-y-4 sm:space-y-6">
-        <div className="panel sticky top-3 z-20 flex items-center justify-center p-3 lg:hidden">
-          <LogoBadge compact />
-        </div>
-        <div className="panel sticky top-[86px] z-20 overflow-x-auto p-2 lg:hidden">
-          <div className="flex min-w-max gap-2">
-            {links.map((link) => {
-              const Icon = link.icon;
-              const active = currentPath === link.href;
-
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={cn(
-                    "flex items-center gap-2 whitespace-nowrap rounded-2xl border px-3 py-2.5 text-sm transition",
-                    active
-                      ? "border-gold/30 bg-gold/10 text-white"
-                      : "border-transparent text-muted hover:border-border hover:bg-white/[0.03] hover:text-white"
-                  )}
-                >
-                  <Icon className={cn("h-4 w-4", active ? "text-lightGold" : "text-gold")} />
-                  {link.label}
-                </Link>
-              );
-            })}
+        <div className="sticky top-3 z-30 space-y-3 lg:hidden">
+          <div className="panel flex items-center justify-between p-3">
+            <LogoBadge compact />
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen((current) => !current)}
+              className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-border bg-background text-white transition hover:border-gold"
+              aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+            >
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
           </div>
+          {mobileMenuOpen ? (
+            <div className="panel p-3">
+              <nav className="space-y-2">
+                {links.map((link) => {
+                  const Icon = link.icon;
+                  const active = currentPath === link.href;
+
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={cn(
+                        "flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm transition",
+                        active
+                          ? "border-gold/30 bg-gold/10 text-white"
+                          : "border-transparent text-muted hover:border-border hover:bg-white/[0.03] hover:text-white"
+                      )}
+                    >
+                      <Icon className={cn("h-4 w-4", active ? "text-lightGold" : "text-gold")} />
+                      {link.label}
+                    </Link>
+                  );
+                })}
+              </nav>
+            </div>
+          ) : null}
         </div>
         {children}
       </main>
