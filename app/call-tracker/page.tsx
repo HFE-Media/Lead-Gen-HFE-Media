@@ -42,7 +42,7 @@ export default async function CallTrackerPage() {
               {metrics.activitySeries.map((item) => (
                 <div
                   key={item.date}
-                  className="flex min-w-[100%] snap-center flex-col justify-end rounded-3xl border border-border/80 bg-background/70 p-3 sm:min-w-0 sm:p-4"
+                  className="flex min-w-[calc(50%-0.375rem)] snap-center flex-col justify-end rounded-3xl border border-border/80 bg-background/70 p-3 sm:min-w-0 sm:p-4"
                 >
                   <div className="flex flex-1 items-end justify-center gap-2 sm:gap-3">
                     <VerticalBar value={item.contacted} max={maxActivity} tone="bg-gold" />
