@@ -37,12 +37,12 @@ export default async function CallTrackerPage() {
               <LegendPill label="Won" tone="bg-white" />
             </div>
           </div>
-          <div className="px-4 py-6 sm:px-6">
-            <div className="grid min-h-[360px] grid-cols-5 gap-3 sm:gap-4">
+          <div className="overflow-x-auto px-4 py-6 sm:px-6">
+            <div className="flex snap-x snap-mandatory gap-3 pb-2 sm:grid sm:min-h-[360px] sm:grid-cols-5 sm:gap-4 sm:pb-0">
               {metrics.activitySeries.map((item) => (
                 <div
                   key={item.date}
-                  className="flex min-w-0 flex-col justify-end rounded-3xl border border-border/80 bg-background/70 p-3 sm:p-4"
+                  className="flex min-w-[100%] snap-center flex-col justify-end rounded-3xl border border-border/80 bg-background/70 p-3 sm:min-w-0 sm:p-4"
                 >
                   <div className="flex flex-1 items-end justify-center gap-2 sm:gap-3">
                     <VerticalBar value={item.contacted} max={maxActivity} tone="bg-gold" />
