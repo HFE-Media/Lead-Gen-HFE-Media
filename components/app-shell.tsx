@@ -1,5 +1,8 @@
+"use client";
+
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { LayoutDashboard, ListChecks, PhoneCall, PlayCircle, Search, Settings, Users } from "lucide-react";
 import { LogoBadge } from "@/components/logo-badge";
 import { cn } from "@/lib/utils";
@@ -15,12 +18,12 @@ const links = [
 ];
 
 export function AppShell({
-  children,
-  currentPath
+  children
 }: {
   children: ReactNode;
-  currentPath: string;
 }) {
+  const currentPath = usePathname();
+
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-[1520px] items-start gap-4 px-3 py-4 sm:gap-6 sm:px-4 sm:py-6 md:px-6">
       <aside className="panel sticky top-6 hidden w-64 shrink-0 self-start p-5 lg:block">
