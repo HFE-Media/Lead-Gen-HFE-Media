@@ -13,10 +13,12 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <section className="panel bg-panel p-8">
+      <section className="panel bg-panel p-6 lg:p-8">
         <p className="text-xs uppercase tracking-[0.28em] text-muted">Dashboard</p>
-        <h1 className="mt-4 max-w-4xl font-display text-5xl text-white">Premium South African lead discovery and sales tracking for HFE Media.</h1>
-        <p className="mt-4 max-w-2xl text-sm leading-7 text-muted">
+        <h1 className="mt-4 max-w-5xl font-display text-3xl text-white sm:text-4xl xl:text-[3.35rem] xl:leading-[1.05]">
+          Premium South African lead discovery and sales tracking for HFE Media.
+        </h1>
+        <p className="mt-4 max-w-3xl text-sm leading-7 text-muted sm:text-[15px]">
           Find no-website businesses, move them through a sales pipeline, and keep every final outcome visible from one dashboard.
         </p>
       </section>
@@ -43,7 +45,7 @@ export default async function DashboardPage() {
         </section>
       ) : null}
 
-      <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-5">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         <StatCard label="Total Leads" value={metrics.totalLeads} footnote="All no-website leads captured so far." />
         <StatCard label="No Website Leads" value={metrics.noWebsiteLeads} footnote="Qualified raw opportunities in the CRM." />
         <StatCard label="Contacted" value={metrics.contactedLeads} footnote="Leads that have been called or closed out." />
@@ -51,18 +53,31 @@ export default async function DashboardPage() {
         <StatCard label="Won" value={metrics.wonLeads} footnote="Leads converted into closed business." />
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_360px]">
+      <section className="grid gap-6 2xl:grid-cols-[minmax(0,1.2fr)_360px]">
         <div className="space-y-6">
           <div className="panel overflow-hidden">
             <div className="border-b border-border px-6 py-5">
               <p className="text-xs uppercase tracking-[0.28em] text-muted">Sales Activity</p>
               <h2 className="mt-2 font-display text-2xl text-white">Lead performance over the last 7 days</h2>
             </div>
-            <div className="grid gap-4 px-6 py-6 md:grid-cols-7">
+            <div className="border-b border-border/80 px-6 py-4">
+              <div className="flex flex-wrap gap-4 text-xs uppercase tracking-[0.18em] text-muted">
+                <LegendPill label="Contacted" tone="bg-gold" />
+                <LegendPill label="Interested" tone="bg-lightGold" />
+                <LegendPill label="Won" tone="bg-white" />
+              </div>
+            </div>
+            <div className="space-y-3 px-6 py-6">
               {metrics.activitySeries.map((item) => (
-                <div key={item.date} className="rounded-3xl border border-border bg-background p-4">
-                  <p className="text-xs uppercase tracking-[0.2em] text-muted">{item.date.slice(5)}</p>
-                  <div className="mt-4 space-y-3">
+                <div
+                  key={item.date}
+                  className="grid gap-4 rounded-3xl border border-border/80 bg-background/70 p-4 transition hover:border-gold/30 sm:grid-cols-[92px_minmax(0,1fr)] sm:items-center"
+                >
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.2em] text-muted">{item.date.slice(5)}</p>
+                    <p className="mt-1 text-sm text-white">{formatDayLabel(item.date)}</p>
+                  </div>
+                  <div className="space-y-3">
                     <MetricBar label="Contacted" value={item.contacted} max={maxActivity} tone="bg-gold" />
                     <MetricBar label="Interested" value={item.interested} max={maxActivity} tone="bg-lightGold" />
                     <MetricBar label="Won" value={item.won} max={maxActivity} tone="bg-white" />
@@ -175,6 +190,15 @@ export default async function DashboardPage() {
   );
 }
 
+function LegendPill({ label, tone }: { label: string; tone: string }) {
+  return (
+    <span className="inline-flex items-center gap-2">
+      <span className={`h-2.5 w-2.5 rounded-full ${tone}`} />
+      <span>{label}</span>
+    </span>
+  );
+}
+
 function MetricBar({
   label,
   value,
@@ -188,13 +212,18 @@ function MetricBar({
 }) {
   return (
     <div>
-      <div className="flex items-center justify-between text-xs uppercase tracking-[0.18em] text-muted">
+      <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.16em] text-muted">
         <span>{label}</span>
         <span>{value}</span>
       </div>
-      <div className="mt-2 h-3 overflow-hidden rounded-full bg-card">
+      <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-card">
         <div className={`h-full rounded-full ${tone}`} style={{ width: `${Math.max(6, Math.round((value / max) * 100))}%` }} />
       </div>
     </div>
   );
+}
+
+function formatDayLabel(value: string) {
+  const date = new Date(`${value}T00:00:00`);
+  return date.toLocaleDateString("en-ZA", { weekday: "short" });
 }
