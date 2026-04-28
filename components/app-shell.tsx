@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { LayoutDashboard, ListChecks, PlayCircle, Search, Settings, Users } from "lucide-react";
+import { LayoutDashboard, ListChecks, PhoneCall, PlayCircle, Search, Settings, Users } from "lucide-react";
 import { LogoBadge } from "@/components/logo-badge";
 import { cn } from "@/lib/utils";
 
@@ -9,6 +9,7 @@ const links = [
   { href: "/search-terms", label: "Search Terms", icon: Search },
   { href: "/run-search", label: "Run Search", icon: PlayCircle },
   { href: "/leads", label: "Leads CRM", icon: Users },
+  { href: "/call-tracker", label: "Call Tracker", icon: PhoneCall },
   { href: "/already-searched", label: "Already Searched", icon: ListChecks },
   { href: "/settings", label: "Settings", icon: Settings }
 ];

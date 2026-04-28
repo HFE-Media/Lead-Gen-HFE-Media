@@ -11,6 +11,14 @@ export async function GET() {
     "rating",
     "place_id",
     "source_term",
+    "lead_status",
+    "call_outcome",
+    "last_call_at",
+    "follow_up_at",
+    "quoted_amount",
+    "won_value",
+    "assigned_agent",
+    "lead_notes",
     "created_at"
   ]);
 
@@ -23,6 +31,14 @@ export async function GET() {
       lead.rating,
       lead.place_id,
       lead.source_term,
+      lead.lead_status,
+      lead.call_outcome,
+      lead.last_call_at,
+      lead.follow_up_at,
+      lead.quoted_amount,
+      lead.won_value,
+      lead.assigned_agent,
+      lead.lead_notes,
       lead.created_at
     ])
   );

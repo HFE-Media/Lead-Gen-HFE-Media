@@ -1,83 +1,454 @@
+"use client";
+
+import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
+import { Phone, Save } from "lucide-react";
+import { CALL_OUTCOMES, CALL_OUTCOME_LABELS, LEAD_STATUSES, LEAD_STATUS_LABELS } from "@/lib/crm";
 import type { Lead } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
 
-export function LeadsTable({ leads }: { leads: Lead[] }) {
+type LeadsTableProps = {
+  leads: Lead[];
+  mode?: "crm" | "tracker";
+};
+
+export function LeadsTable({ leads, mode = "crm" }: LeadsTableProps) {
+  const [items, setItems] = useState(leads);
+  const [selectedId, setSelectedId] = useState<string | null>(leads[0]?.id ?? null);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [search, setSearch] = useState("");
+  const [saving, startTransition] = useTransition();
+  const [message, setMessage] = useState<string | null>(null);
+
+  const filteredLeads = useMemo(() => {
+    return items.filter((lead) => {
+      if (mode === "tracker" && lead.lead_status === "new" && !lead.follow_up_at && !lead.last_call_at) {
+        return false;
+      }
+
+      if (statusFilter !== "all" && lead.lead_status !== statusFilter) {
+        return false;
+      }
+
+      if (search.trim()) {
+        const query = search.trim().toLowerCase();
+        const haystack = [
+          lead.name,
+          lead.formatted_phone_number ?? "",
+          lead.formatted_address ?? "",
+          lead.source_term ?? ""
+        ]
+          .join(" ")
+          .toLowerCase();
+
+        if (!haystack.includes(query)) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [items, mode, search, statusFilter]);
+
+  const selectedLead = filteredLeads.find((lead) => lead.id === selectedId) ?? filteredLeads[0] ?? null;
+
+  const summary = useMemo(() => {
+    const contacted = items.filter((lead) => ["contacted", "interested", "quoted", "won", "lost"].includes(lead.lead_status)).length;
+    const interested = items.filter((lead) => ["interested", "quoted", "won"].includes(lead.lead_status)).length;
+    const won = items.filter((lead) => lead.lead_status === "won").length;
+    const followUps = items.filter((lead) => Boolean(lead.follow_up_at)).length;
+
+    return { contacted, interested, won, followUps };
+  }, [items]);
+
+  const saveLead = async (lead: Lead) => {
+    setMessage(null);
+
+    const response = await fetch(`/api/leads/${lead.id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        lead_status: lead.lead_status,
+        call_outcome: lead.call_outcome,
+        last_call_at: lead.last_call_at,
+        lead_notes: lead.lead_notes,
+        follow_up_at: lead.follow_up_at,
+        quoted_amount: lead.quoted_amount,
+        won_value: lead.won_value,
+        assigned_agent: lead.assigned_agent
+      })
+    });
+
+    const data = (await response.json()) as { lead?: Lead; error?: string };
+
+    if (!response.ok || !data.lead) {
+      setMessage(data.error ?? "Unable to save lead.");
+      return;
+    }
+
+    setItems((current) => current.map((item) => (item.id === data.lead!.id ? (data.lead as Lead) : item)));
+    setMessage(`Saved ${data.lead.name}.`);
+  };
+
+  const updateLead = (id: string, field: keyof Lead, value: string | number | null) => {
+    setItems((current) =>
+      current.map((lead) => {
+        if (lead.id !== id) {
+          return lead;
+        }
+
+        return {
+          ...lead,
+          [field]: value
+        };
+      })
+    );
+  };
+
+  const headerTitle = mode === "tracker" ? "Call Tracker" : "Leads CRM";
+  const headerSubtitle =
+    mode === "tracker"
+      ? "Track final outcomes, follow-ups, and value for every lead."
+      : `${items.length} no-website leads saved`;
+
   return (
-    <section className="panel overflow-hidden">
-      <div className="flex flex-col gap-4 border-b border-border px-5 py-5 md:flex-row md:items-center md:justify-between md:px-6">
-        <div>
-          <p className="text-xs uppercase tracking-[0.28em] text-muted">Leads CRM</p>
-          <h1 className="mt-2 font-display text-3xl text-white">{leads.length} no-website leads saved</h1>
+    <div className="space-y-6">
+      <section className="panel p-5 sm:p-6">
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-[0.28em] text-muted">{headerTitle}</p>
+            <h1 className="mt-2 font-display text-3xl text-white">{headerSubtitle}</h1>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <SummaryChip label="Contacted" value={summary.contacted} />
+            <SummaryChip label="Interested" value={summary.interested} />
+            <SummaryChip label="Won" value={summary.won} />
+            <SummaryChip label="Follow-ups" value={summary.followUps} />
+            <Link
+              href="/api/leads/export"
+              className="inline-flex h-11 items-center justify-center rounded-2xl border border-gold/30 bg-gold px-5 font-medium text-background transition hover:bg-lightGold"
+            >
+              Export CSV
+            </Link>
+          </div>
         </div>
-        <Link
-          href="/api/leads/export"
-          className="inline-flex h-12 items-center justify-center rounded-2xl border border-gold/30 bg-gold px-5 font-medium text-background transition hover:bg-lightGold"
-        >
-          Export CSV
-        </Link>
-      </div>
-      <div className="hidden overflow-x-auto md:block">
-        <table className="data-table min-w-full">
-          <thead>
-            <tr>
-              <th>Business</th>
-              <th>Address</th>
-              <th>Phone</th>
-              <th>Rating</th>
-              <th>Source Term</th>
-              <th>Captured</th>
-            </tr>
-          </thead>
-          <tbody>
-            {leads.map((lead) => (
-              <tr key={lead.id}>
-                <td>
-                  <div>
-                    <p className="font-medium text-white">{lead.name}</p>
-                    <p className="mt-1 text-xs uppercase tracking-[0.18em] text-muted">{lead.place_id ?? "No place id"}</p>
-                  </div>
-                </td>
-                <td>{lead.formatted_address ?? "Unknown"}</td>
-                <td>{lead.formatted_phone_number ?? "Unknown"}</td>
-                <td>{lead.rating ?? "-"}</td>
-                <td>{lead.source_term ?? "-"}</td>
-                <td>{formatDate(lead.created_at)}</td>
-              </tr>
-            ))}
-            {leads.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-sm text-muted">
-                  No leads yet. Run a search to populate the CRM.
-                </td>
-              </tr>
-            ) : null}
-          </tbody>
-        </table>
-      </div>
-      <div className="space-y-3 p-4 md:hidden">
-        {leads.map((lead) => (
-          <div key={lead.id} className="rounded-3xl border border-border bg-background p-4">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="font-medium text-white">{lead.name}</p>
-                <p className="mt-1 break-words text-sm text-muted">{lead.formatted_address ?? "Unknown address"}</p>
-              </div>
-              <div className="rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-xs uppercase tracking-[0.2em] text-lightGold">
-                {lead.rating ?? "-"}
-              </div>
-            </div>
-            <div className="mt-4 space-y-2 text-sm text-muted">
-              <p>Phone: {lead.formatted_phone_number ?? "Unknown"}</p>
-              <p>Source: {lead.source_term ?? "-"}</p>
-              <p>Captured: {formatDate(lead.created_at)}</p>
+      </section>
+
+      {message ? (
+        <div className="rounded-2xl border border-gold/20 bg-gold/10 px-4 py-3 text-sm text-lightGold">{message}</div>
+      ) : null}
+
+      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_420px]">
+        <div className="panel overflow-hidden">
+          <div className="border-b border-border px-5 py-5 sm:px-6">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <input
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Search name, phone, address, source term"
+                className="h-11 w-full rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold md:max-w-md"
+              />
+              <select
+                value={statusFilter}
+                onChange={(event) => setStatusFilter(event.target.value)}
+                className="h-11 rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold"
+              >
+                <option value="all">All statuses</option>
+                {LEAD_STATUSES.map((status) => (
+                  <option key={status} value={status}>
+                    {LEAD_STATUS_LABELS[status]}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
-        ))}
-        {leads.length === 0 ? (
-          <p className="py-6 text-center text-sm text-muted">No leads yet. Run a search to populate the CRM.</p>
-        ) : null}
-      </div>
-    </section>
+
+          <div className="hidden overflow-x-auto lg:block">
+            <table className="data-table min-w-full">
+              <thead>
+                <tr>
+                  <th>Business</th>
+                  <th>Status</th>
+                  <th>Outcome</th>
+                  <th>Phone</th>
+                  <th>Follow-up</th>
+                  <th>Value</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                {filteredLeads.map((lead) => (
+                  <tr key={lead.id} className={selectedLead?.id === lead.id ? "bg-white/[0.03]" : ""}>
+                    <td>
+                      <div>
+                        <p className="font-medium text-white">{lead.name}</p>
+                        <p className="mt-1 text-xs uppercase tracking-[0.18em] text-muted">{lead.source_term ?? "No source term"}</p>
+                      </div>
+                    </td>
+                    <td>
+                      <StatusChip label={LEAD_STATUS_LABELS[lead.lead_status]} tone={lead.lead_status} />
+                    </td>
+                    <td>{lead.call_outcome ? CALL_OUTCOME_LABELS[lead.call_outcome] : "Not logged"}</td>
+                    <td>{lead.formatted_phone_number ?? "Unknown"}</td>
+                    <td>{formatDate(lead.follow_up_at)}</td>
+                    <td>{formatMoney(lead.won_value ?? lead.quoted_amount)}</td>
+                    <td className="text-right">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedId(lead.id)}
+                        className="rounded-2xl border border-border bg-background px-4 py-2 text-sm text-white transition hover:border-gold"
+                      >
+                        Manage
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {filteredLeads.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-4 py-10 text-center text-sm text-muted">
+                      No leads match the current filters.
+                    </td>
+                  </tr>
+                ) : null}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="space-y-3 p-4 lg:hidden">
+            {filteredLeads.map((lead) => (
+              <div key={lead.id} className="rounded-3xl border border-border bg-background p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-medium text-white">{lead.name}</p>
+                    <p className="mt-1 text-sm text-muted">{lead.formatted_phone_number ?? "Unknown number"}</p>
+                    <p className="mt-1 text-sm text-muted">{lead.source_term ?? "No source term"}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedId(lead.id)}
+                    className="rounded-2xl border border-border bg-background px-3 py-2 text-sm text-white transition hover:border-gold"
+                  >
+                    Open
+                  </button>
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <StatusChip label={LEAD_STATUS_LABELS[lead.lead_status]} tone={lead.lead_status} />
+                  {lead.call_outcome ? <StatusChip label={CALL_OUTCOME_LABELS[lead.call_outcome]} tone="neutral" /> : null}
+                </div>
+                <p className="mt-3 text-sm text-muted">Follow-up: {formatDate(lead.follow_up_at)}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <section className="panel p-5 sm:p-6">
+          {selectedLead ? (
+            <LeadEditor
+              lead={selectedLead}
+              saving={saving}
+              onChange={updateLead}
+              onSave={() =>
+                startTransition(async () => {
+                  const leadToSave = items.find((item) => item.id === selectedLead.id);
+                  if (leadToSave) {
+                    await saveLead(leadToSave);
+                  }
+                })
+              }
+            />
+          ) : (
+            <p className="text-sm text-muted">Select a lead to manage its call outcome and follow-up details.</p>
+          )}
+        </section>
+      </section>
+    </div>
   );
+}
+
+function LeadEditor({
+  lead,
+  saving,
+  onChange,
+  onSave
+}: {
+  lead: Lead;
+  saving: boolean;
+  onChange: (id: string, field: keyof Lead, value: string | number | null) => void;
+  onSave: () => void;
+}) {
+  return (
+    <div className="space-y-5">
+      <div className="flex flex-col gap-4">
+        <div>
+          <p className="text-xs uppercase tracking-[0.28em] text-muted">Lead Profile</p>
+          <h2 className="mt-2 font-display text-3xl text-white">{lead.name}</h2>
+          <p className="mt-2 text-sm leading-6 text-muted">{lead.formatted_address ?? "Unknown address"}</p>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <a
+            href={lead.formatted_phone_number ? `tel:${lead.formatted_phone_number}` : undefined}
+            className="inline-flex h-11 items-center gap-2 rounded-2xl border border-gold/30 bg-gold px-4 font-medium text-background transition hover:bg-lightGold"
+          >
+            <Phone className="h-4 w-4" />
+            Call Lead
+          </a>
+          <button
+            type="button"
+            onClick={onSave}
+            disabled={saving}
+            className="inline-flex h-11 items-center gap-2 rounded-2xl border border-border bg-background px-4 font-medium text-white transition hover:border-gold disabled:opacity-50"
+          >
+            <Save className="h-4 w-4" />
+            {saving ? "Saving..." : "Save Update"}
+          </button>
+        </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Lead status">
+          <select
+            value={lead.lead_status}
+            onChange={(event) => onChange(lead.id, "lead_status", event.target.value)}
+            className="h-11 w-full rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold"
+          >
+            {LEAD_STATUSES.map((status) => (
+              <option key={status} value={status}>
+                {LEAD_STATUS_LABELS[status]}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Final call outcome">
+          <select
+            value={lead.call_outcome ?? ""}
+            onChange={(event) => onChange(lead.id, "call_outcome", event.target.value || null)}
+            className="h-11 w-full rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold"
+          >
+            <option value="">Not logged</option>
+            {CALL_OUTCOMES.map((outcome) => (
+              <option key={outcome} value={outcome}>
+                {CALL_OUTCOME_LABELS[outcome]}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Call date">
+          <input
+            type="datetime-local"
+            value={toDateTimeLocal(lead.last_call_at)}
+            onChange={(event) => onChange(lead.id, "last_call_at", event.target.value ? new Date(event.target.value).toISOString() : null)}
+            className="h-11 w-full rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold"
+          />
+        </Field>
+        <Field label="Follow-up date">
+          <input
+            type="datetime-local"
+            value={toDateTimeLocal(lead.follow_up_at)}
+            onChange={(event) => onChange(lead.id, "follow_up_at", event.target.value ? new Date(event.target.value).toISOString() : null)}
+            className="h-11 w-full rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold"
+          />
+        </Field>
+        <Field label="Quoted amount">
+          <input
+            type="number"
+            min={0}
+            step="0.01"
+            value={lead.quoted_amount ?? ""}
+            onChange={(event) => onChange(lead.id, "quoted_amount", event.target.value ? Number(event.target.value) : null)}
+            className="h-11 w-full rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold"
+          />
+        </Field>
+        <Field label="Won value">
+          <input
+            type="number"
+            min={0}
+            step="0.01"
+            value={lead.won_value ?? ""}
+            onChange={(event) => onChange(lead.id, "won_value", event.target.value ? Number(event.target.value) : null)}
+            className="h-11 w-full rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold"
+          />
+        </Field>
+      </div>
+
+      <Field label="Assigned agent">
+        <input
+          type="text"
+          value={lead.assigned_agent ?? ""}
+          onChange={(event) => onChange(lead.id, "assigned_agent", event.target.value || null)}
+          placeholder="HFE Media"
+          className="h-11 w-full rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold"
+        />
+      </Field>
+
+      <Field label="Call notes">
+        <textarea
+          value={lead.lead_notes ?? ""}
+          onChange={(event) => onChange(lead.id, "lead_notes", event.target.value || null)}
+          rows={6}
+          placeholder="Summarise the call, objections, next step, and any quote details."
+          className="w-full rounded-3xl border border-border bg-background px-4 py-4 text-white outline-none transition focus:border-gold"
+        />
+      </Field>
+    </div>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="block">
+      <span className="mb-2 block text-xs uppercase tracking-[0.24em] text-muted">{label}</span>
+      {children}
+    </label>
+  );
+}
+
+function SummaryChip({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-2xl border border-border bg-white/[0.03] px-4 py-2 text-sm text-muted">
+      {label}: <span className="text-white">{value}</span>
+    </div>
+  );
+}
+
+function StatusChip({
+  label,
+  tone
+}: {
+  label: string;
+  tone: Lead["lead_status"] | "neutral";
+}) {
+  const className =
+    tone === "won"
+      ? "border-gold/40 bg-gold/10 text-lightGold"
+      : tone === "interested" || tone === "quoted"
+        ? "border-white/10 bg-white/[0.04] text-white"
+        : tone === "lost"
+          ? "border-border bg-background text-muted"
+          : "border-border bg-white/[0.03] text-muted";
+
+  return <span className={`rounded-full border px-3 py-1 text-xs uppercase tracking-[0.2em] ${className}`}>{label}</span>;
+}
+
+function formatMoney(value: number | null) {
+  if (!value) {
+    return "-";
+  }
+
+  return new Intl.NumberFormat("en-ZA", {
+    style: "currency",
+    currency: "ZAR",
+    maximumFractionDigits: 0
+  }).format(value);
+}
+
+function toDateTimeLocal(value: string | null) {
+  if (!value) {
+    return "";
+  }
+
+  const date = new Date(value);
+  const offsetMs = date.getTimezoneOffset() * 60_000;
+  return new Date(date.getTime() - offsetMs).toISOString().slice(0, 16);
 }

@@ -77,8 +77,37 @@ create table if not exists public.leads (
   website text,
   rating numeric(3,2),
   source_term text,
+  lead_status text not null default 'new' check (lead_status in ('new', 'contacted', 'interested', 'quoted', 'won', 'lost')),
+  call_outcome text check (call_outcome in ('no_answer', 'wrong_number', 'not_interested', 'call_back_later', 'interested', 'quoted', 'won', 'lost')),
+  last_call_at timestamptz,
+  lead_notes text,
+  follow_up_at timestamptz,
+  quoted_amount numeric(12,2),
+  won_value numeric(12,2),
+  assigned_agent text,
+  updated_at timestamptz not null default now(),
   created_at timestamptz not null default now()
 );
+
+alter table public.leads add column if not exists lead_status text not null default 'new';
+alter table public.leads add column if not exists call_outcome text;
+alter table public.leads add column if not exists last_call_at timestamptz;
+alter table public.leads add column if not exists lead_notes text;
+alter table public.leads add column if not exists follow_up_at timestamptz;
+alter table public.leads add column if not exists quoted_amount numeric(12,2);
+alter table public.leads add column if not exists won_value numeric(12,2);
+alter table public.leads add column if not exists assigned_agent text;
+alter table public.leads add column if not exists updated_at timestamptz not null default now();
+
+alter table public.leads drop constraint if exists leads_lead_status_check;
+alter table public.leads
+  add constraint leads_lead_status_check
+  check (lead_status in ('new', 'contacted', 'interested', 'quoted', 'won', 'lost'));
+
+alter table public.leads drop constraint if exists leads_call_outcome_check;
+alter table public.leads
+  add constraint leads_call_outcome_check
+  check (call_outcome in ('no_answer', 'wrong_number', 'not_interested', 'call_back_later', 'interested', 'quoted', 'won', 'lost'));
 
 create unique index if not exists leads_place_id_unique
   on public.leads (place_id)
@@ -116,3 +145,20 @@ create trigger touch_app_settings_updated_at
 before update on public.app_settings
 for each row
 execute procedure public.touch_app_settings_updated_at();
+
+create or replace function public.touch_leads_updated_at()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+drop trigger if exists touch_leads_updated_at on public.leads;
+
+create trigger touch_leads_updated_at
+before update on public.leads
+for each row
+execute procedure public.touch_leads_updated_at();

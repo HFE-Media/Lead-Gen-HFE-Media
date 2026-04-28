@@ -1,3 +1,5 @@
+import type { CallOutcome, LeadStatus } from "@/lib/crm";
+
 export type SearchTerm = {
   id: string;
   term: string;
@@ -69,6 +71,15 @@ export type Lead = {
   website: string | null;
   rating: number | null;
   source_term: string | null;
+  lead_status: LeadStatus;
+  call_outcome: CallOutcome | null;
+  last_call_at: string | null;
+  lead_notes: string | null;
+  follow_up_at: string | null;
+  quoted_amount: number | null;
+  won_value: number | null;
+  assigned_agent: string | null;
+  updated_at: string | null;
   created_at: string;
 };
 
@@ -82,10 +93,25 @@ export type AppSettings = {
 
 export type DashboardMetrics = {
   totalLeads: number;
+  noWebsiteLeads: number;
+  contactedLeads: number;
+  interestedLeads: number;
+  wonLeads: number;
   pendingTerms: number;
   searchedTerms: number;
   latestLeads: Lead[];
   latestSearches: SearchTerm[];
+  followUpsDue: Lead[];
+  activitySeries: Array<{
+    date: string;
+    contacted: number;
+    interested: number;
+    won: number;
+  }>;
+  outcomeBreakdown: Array<{
+    label: string;
+    value: number;
+  }>;
 };
 
 export type RunSearchResponse = {
