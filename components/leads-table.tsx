@@ -322,7 +322,7 @@ function LeadEditor({
       </div>
 
       <div className="space-y-4">
-        <div className="flex flex-wrap justify-center gap-3">
+        <div className="flex flex-wrap gap-3">
           <a
             href={lead.formatted_phone_number ? `tel:${lead.formatted_phone_number}` : undefined}
             className="inline-flex h-11 items-center gap-2 rounded-2xl border border-gold/30 bg-gold px-4 text-sm font-medium text-background transition hover:bg-lightGold"
