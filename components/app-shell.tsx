@@ -22,9 +22,9 @@ export function AppShell({
   currentPath: string;
 }) {
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-[1600px] gap-4 px-3 py-4 sm:gap-6 sm:px-4 sm:py-6 md:px-6">
-      <aside className="panel hidden w-72 shrink-0 flex-col justify-between p-5 lg:flex">
-        <div className="space-y-8">
+    <div className="mx-auto flex min-h-screen w-full max-w-[1520px] items-start gap-4 px-3 py-4 sm:gap-6 sm:px-4 sm:py-6 md:px-6">
+      <aside className="panel sticky top-6 hidden w-64 shrink-0 self-start p-5 lg:block">
+        <div className="space-y-6">
           <LogoBadge />
           <nav className="space-y-2">
             {links.map((link) => {
@@ -49,7 +49,7 @@ export function AppShell({
             })}
           </nav>
         </div>
-        <div className="rounded-3xl border border-gold/20 bg-gold/10 p-4">
+        <div className="mt-6 rounded-3xl border border-gold/20 bg-gold/10 p-4">
           <p className="font-display text-lg text-white">Premium lead capture</p>
           <p className="mt-2 text-sm leading-6 text-muted">
             South Africa focused Google Places filtering for businesses with no website footprint.
