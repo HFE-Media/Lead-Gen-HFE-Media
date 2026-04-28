@@ -267,11 +267,7 @@ export function LeadsTable({ leads, mode = "crm" }: LeadsTableProps) {
       {editorOpen && selectedLead ? (
         <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/70 p-3 backdrop-blur-sm sm:p-6">
           <div className="max-h-[92vh] w-full max-w-4xl overflow-hidden rounded-[28px] border border-border bg-card shadow-glow">
-            <div className="flex items-center justify-between border-b border-border px-5 py-4 sm:px-6">
-              <div>
-                <p className="text-xs uppercase tracking-[0.28em] text-muted">Lead Profile</p>
-                <p className="mt-2 text-sm text-muted">Manage call outcome, follow-up, notes, and sales value.</p>
-              </div>
+            <div className="flex items-center justify-end border-b border-border px-5 py-4 sm:px-6">
               <button
                 type="button"
                 onClick={() => setEditorOpen(false)}
