@@ -266,7 +266,7 @@ export function LeadsTable({ leads, mode = "crm" }: LeadsTableProps) {
 
       {editorOpen && selectedLead ? (
         <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/70 p-3 backdrop-blur-sm sm:p-6">
-          <div className="max-h-[92vh] w-full max-w-[60rem] overflow-hidden rounded-[28px] border border-border bg-card shadow-glow">
+          <div className="max-h-[92vh] w-full max-w-[62rem] overflow-hidden rounded-[28px] border border-border bg-card shadow-glow">
             <div className="max-h-[92vh] overflow-y-auto p-5 sm:p-7">
               <LeadEditor
                 lead={selectedLead}
@@ -408,13 +408,23 @@ function LeadEditor({
         </Field>
       </div>
 
-        <Field label="Assigned agent">
+      <Field label="Assigned agent">
         <input
           type="text"
           value={lead.assigned_agent ?? ""}
           onChange={(event) => onChange(lead.id, "assigned_agent", event.target.value || null)}
           placeholder="HFE Media"
           className="h-11 w-full rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold"
+        />
+      </Field>
+
+      <Field label="Call notes">
+        <textarea
+          value={lead.lead_notes ?? ""}
+          onChange={(event) => onChange(lead.id, "lead_notes", event.target.value || null)}
+          rows={6}
+          placeholder="Summarise the call, objections, next step, and any quote details."
+          className="w-full rounded-3xl border border-border bg-background px-4 py-4 text-white outline-none transition focus:border-gold"
         />
       </Field>
 
