@@ -325,11 +325,20 @@ function LeadEditor({
         <div className="flex flex-wrap gap-3">
           <a
             href={lead.formatted_phone_number ? `tel:${lead.formatted_phone_number}` : undefined}
-            className="inline-flex h-11 min-w-[150px] items-center justify-center gap-2 rounded-2xl border border-gold/30 bg-gold px-5 text-sm font-medium text-background transition hover:bg-lightGold"
+            className="inline-flex h-11 items-center gap-2 rounded-2xl border border-gold/30 bg-gold px-4 text-sm font-medium text-background transition hover:bg-lightGold"
           >
             <Phone className="h-4 w-4" />
             Call Lead
           </a>
+          <button
+            type="button"
+            onClick={onSave}
+            disabled={saving}
+            className="inline-flex h-11 items-center gap-2 rounded-2xl border border-border bg-background px-4 text-sm font-medium text-white transition hover:border-gold disabled:opacity-50"
+          >
+            <Save className="h-4 w-4" />
+            {saving ? "Saving..." : "Save Update"}
+          </button>
         </div>
       </div>
 
@@ -418,18 +427,6 @@ function LeadEditor({
           className="w-full rounded-3xl border border-border bg-background px-4 py-4 text-white outline-none transition focus:border-gold"
         />
       </Field>
-
-      <div className="border-t border-border/80 pt-5">
-        <button
-          type="button"
-          onClick={onSave}
-          disabled={saving}
-          className="inline-flex h-11 min-w-[170px] items-center justify-center gap-2 rounded-2xl border border-gold/30 bg-gold px-5 text-sm font-medium text-background transition hover:bg-lightGold disabled:opacity-50"
-        >
-          <Save className="h-4 w-4" />
-          {saving ? "Saving..." : "Save Update"}
-        </button>
-      </div>
     </div>
   );
 }
