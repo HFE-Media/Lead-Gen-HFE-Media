@@ -133,7 +133,7 @@ export function LeadsTable({ leads, mode = "crm" }: LeadsTableProps) {
   };
 
   return (
-    <div className="relative space-y-6">
+    <div className="space-y-6">
       <section className="panel p-5 sm:p-6">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div>
@@ -265,7 +265,7 @@ export function LeadsTable({ leads, mode = "crm" }: LeadsTableProps) {
       </section>
 
       {editorOpen && selectedLead ? (
-        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/70 p-3 backdrop-blur-sm sm:p-6 lg:absolute lg:inset-0 lg:bg-black/55">
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/70 p-3 backdrop-blur-sm sm:p-6">
           <div className="max-h-[92vh] w-full max-w-[56rem] overflow-hidden rounded-[28px] border border-border bg-card shadow-glow">
             <div className="max-h-[92vh] overflow-y-auto p-5 sm:p-7">
               <LeadEditor
