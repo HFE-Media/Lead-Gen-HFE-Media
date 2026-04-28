@@ -407,7 +407,7 @@ function LeadEditor({
             <input
               type="number"
               min={0}
-              step="0.01"
+              step="50"
               value={lead.quoted_amount ?? ""}
               onChange={(event) => onChange(lead.id, "quoted_amount", event.target.value ? Number(event.target.value) : null)}
               className="h-11 w-full rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold"
@@ -417,7 +417,7 @@ function LeadEditor({
             <input
               type="number"
               min={0}
-              step="0.01"
+              step="50"
               value={lead.won_value ?? ""}
               onChange={(event) => onChange(lead.id, "won_value", event.target.value ? Number(event.target.value) : null)}
               className="h-11 w-full rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold"
