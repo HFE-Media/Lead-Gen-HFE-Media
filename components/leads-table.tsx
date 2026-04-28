@@ -342,83 +342,88 @@ function LeadEditor({
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Lead status">
-          <select
-            value={lead.lead_status}
-            onChange={(event) => onChange(lead.id, "lead_status", event.target.value)}
-            className="h-11 w-full rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold"
-          >
-            {LEAD_STATUSES.map((status) => (
-              <option key={status} value={status}>
-                {LEAD_STATUS_LABELS[status]}
-              </option>
-            ))}
-          </select>
-        </Field>
-        <Field label="Final call outcome">
-          <select
-            value={lead.call_outcome ?? ""}
-            onChange={(event) => onChange(lead.id, "call_outcome", event.target.value || null)}
-            className="h-11 w-full rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold"
-          >
-            <option value="">Not logged</option>
-            {CALL_OUTCOMES.map((outcome) => (
-              <option key={outcome} value={outcome}>
-                {CALL_OUTCOME_LABELS[outcome]}
-              </option>
-            ))}
-          </select>
-        </Field>
-        <Field label="Call date">
-          <input
-            type="datetime-local"
-            value={toDateTimeLocal(lead.last_call_at)}
-            onChange={(event) => onChange(lead.id, "last_call_at", event.target.value ? new Date(event.target.value).toISOString() : null)}
-            className="h-11 w-full rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold"
-          />
-        </Field>
-        <Field label="Follow-up date">
-          <input
-            type="datetime-local"
-            value={toDateTimeLocal(lead.follow_up_at)}
-            onChange={(event) => onChange(lead.id, "follow_up_at", event.target.value ? new Date(event.target.value).toISOString() : null)}
-            className="h-11 w-full rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold"
-          />
-        </Field>
-      </div>
+      <div className="space-y-4">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Lead status">
+            <select
+              value={lead.lead_status}
+              onChange={(event) => onChange(lead.id, "lead_status", event.target.value)}
+              className="h-11 w-full rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold"
+            >
+              {LEAD_STATUSES.map((status) => (
+                <option key={status} value={status}>
+                  {LEAD_STATUS_LABELS[status]}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Final call outcome">
+            <select
+              value={lead.call_outcome ?? ""}
+              onChange={(event) => onChange(lead.id, "call_outcome", event.target.value || null)}
+              className="h-11 w-full rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold"
+            >
+              <option value="">Not logged</option>
+              {CALL_OUTCOMES.map((outcome) => (
+                <option key={outcome} value={outcome}>
+                  {CALL_OUTCOME_LABELS[outcome]}
+                </option>
+              ))}
+            </select>
+          </Field>
+        </div>
 
-      <Field label="Assigned agent">
-        <input
-          type="text"
-          value={lead.assigned_agent ?? ""}
-          onChange={(event) => onChange(lead.id, "assigned_agent", event.target.value || null)}
-          placeholder="HFE Media"
-          className="h-11 w-full rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold"
-        />
-      </Field>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Call date">
+            <input
+              type="datetime-local"
+              value={toDateTimeLocal(lead.last_call_at)}
+              onChange={(event) => onChange(lead.id, "last_call_at", event.target.value ? new Date(event.target.value).toISOString() : null)}
+              className="h-11 w-full rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold"
+            />
+          </Field>
+          <Field label="Follow-up date">
+            <input
+              type="datetime-local"
+              value={toDateTimeLocal(lead.follow_up_at)}
+              onChange={(event) => onChange(lead.id, "follow_up_at", event.target.value ? new Date(event.target.value).toISOString() : null)}
+              className="h-11 w-full rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold"
+            />
+          </Field>
+        </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Quoted amount">
+        <Field label="Assigned agent">
           <input
-            type="number"
-            min={0}
-            step="0.01"
-            value={lead.quoted_amount ?? ""}
-            onChange={(event) => onChange(lead.id, "quoted_amount", event.target.value ? Number(event.target.value) : null)}
+            type="text"
+            value={lead.assigned_agent ?? ""}
+            onChange={(event) => onChange(lead.id, "assigned_agent", event.target.value || null)}
+            placeholder="HFE Media"
             className="h-11 w-full rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold"
           />
         </Field>
-        <Field label="Won value">
-          <input
-            type="number"
-            min={0}
-            step="0.01"
-            value={lead.won_value ?? ""}
-            onChange={(event) => onChange(lead.id, "won_value", event.target.value ? Number(event.target.value) : null)}
-            className="h-11 w-full rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold"
-          />
-        </Field>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Quoted amount">
+            <input
+              type="number"
+              min={0}
+              step="0.01"
+              value={lead.quoted_amount ?? ""}
+              onChange={(event) => onChange(lead.id, "quoted_amount", event.target.value ? Number(event.target.value) : null)}
+              className="h-11 w-full rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold"
+            />
+          </Field>
+          <Field label="Won value">
+            <input
+              type="number"
+              min={0}
+              step="0.01"
+              value={lead.won_value ?? ""}
+              onChange={(event) => onChange(lead.id, "won_value", event.target.value ? Number(event.target.value) : null)}
+              className="h-11 w-full rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold"
+            />
+          </Field>
+        </div>
       </div>
 
       <Field label="Call notes">
