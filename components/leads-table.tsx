@@ -321,7 +321,8 @@ function LeadEditor({
     <div className="space-y-5">
       <div className="flex flex-col gap-4">
         <div>
-          <h2 className="font-display text-3xl text-white">{lead.name}</h2>
+          <p className="text-xs uppercase tracking-[0.28em] text-muted">Lead Profile</p>
+          <h2 className="mt-2 font-display text-3xl text-white">{lead.name}</h2>
           <p className="mt-2 text-sm leading-6 text-muted">{lead.formatted_address ?? "Unknown address"}</p>
         </div>
         <div className="flex flex-wrap gap-3">
