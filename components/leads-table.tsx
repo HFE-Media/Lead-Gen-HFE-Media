@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { Phone, Save } from "lucide-react";
 import { CALL_OUTCOMES, CALL_OUTCOME_LABELS, LEAD_STATUSES, LEAD_STATUS_LABELS } from "@/lib/crm";
@@ -19,6 +19,7 @@ export function LeadsTable({ leads, mode = "crm" }: LeadsTableProps) {
   const [search, setSearch] = useState("");
   const [saving, startTransition] = useTransition();
   const [message, setMessage] = useState<string | null>(null);
+  const editorRef = useRef<HTMLElement | null>(null);
 
   const filteredLeads = useMemo(() => {
     return items.filter((lead) => {
@@ -113,6 +114,18 @@ export function LeadsTable({ leads, mode = "crm" }: LeadsTableProps) {
       ? "Track final outcomes, follow-ups, and value for every lead."
       : `${items.length} no-website leads saved`;
 
+  useEffect(() => {
+    if (!selectedLead || typeof window === "undefined" || window.innerWidth >= 1024) {
+      return;
+    }
+
+    editorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [selectedLead]);
+
+  const openLead = (id: string) => {
+    setSelectedId(id);
+  };
+
   return (
     <div className="space-y-6">
       <section className="panel p-5 sm:p-6">
@@ -197,7 +210,7 @@ export function LeadsTable({ leads, mode = "crm" }: LeadsTableProps) {
                     <td className="text-right">
                       <button
                         type="button"
-                        onClick={() => setSelectedId(lead.id)}
+                        onClick={() => openLead(lead.id)}
                         className="rounded-2xl border border-border bg-background px-4 py-2 text-sm text-white transition hover:border-gold"
                       >
                         Manage
@@ -227,7 +240,7 @@ export function LeadsTable({ leads, mode = "crm" }: LeadsTableProps) {
                   </div>
                   <button
                     type="button"
-                    onClick={() => setSelectedId(lead.id)}
+                    onClick={() => openLead(lead.id)}
                     className="rounded-2xl border border-border bg-background px-3 py-2 text-sm text-white transition hover:border-gold"
                   >
                     Open
@@ -243,7 +256,7 @@ export function LeadsTable({ leads, mode = "crm" }: LeadsTableProps) {
           </div>
         </div>
 
-        <section className="panel p-5 sm:p-6">
+        <section ref={editorRef} className="panel p-5 sm:p-6">
           {selectedLead ? (
             <LeadEditor
               lead={selectedLead}

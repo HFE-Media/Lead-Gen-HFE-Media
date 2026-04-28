@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { StatCard } from "@/components/stat-card";
 import { getDashboardMetrics } from "@/lib/data";
 import { getMissingEnv } from "@/lib/env";
 import { formatDate } from "@/lib/utils";
@@ -8,8 +7,6 @@ export default async function DashboardPage() {
   const metrics = await getDashboardMetrics();
   const missingEnv = getMissingEnv();
   const needsSetup = missingEnv.length > 0;
-  const maxActivity = Math.max(1, ...metrics.activitySeries.map((item) => Math.max(item.contacted, item.interested, item.won)));
-  const maxOutcome = Math.max(1, ...metrics.outcomeBreakdown.map((item) => item.value));
 
   return (
     <div className="space-y-6">
@@ -45,97 +42,97 @@ export default async function DashboardPage() {
         </section>
       ) : null}
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-        <StatCard label="Total Leads" value={metrics.totalLeads} footnote="All no-website leads captured so far." />
-        <StatCard label="No Website Leads" value={metrics.noWebsiteLeads} footnote="Qualified raw opportunities in the CRM." />
-        <StatCard label="Contacted" value={metrics.contactedLeads} footnote="Leads that have been called or closed out." />
-        <StatCard label="Interested" value={metrics.interestedLeads} footnote="Leads that showed buying intent or requested a quote." />
-        <StatCard label="Won" value={metrics.wonLeads} footnote="Leads converted into closed business." />
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <DashboardCard label="Total Leads" value={metrics.totalLeads} footnote="All no-website opportunities captured so far." />
+        <DashboardCard label="Pending Terms" value={metrics.pendingTerms} footnote="Search phrases still waiting to be processed." />
+        <DashboardCard label="Already Searched" value={metrics.searchedTerms} footnote="Terms completed and locked as searched." />
+        <DashboardCard label="Follow-ups Due" value={metrics.followUpsDue.length} footnote="Leads that need action in the call tracker." />
       </section>
 
-      <section className="grid gap-6 2xl:grid-cols-[minmax(0,1.2fr)_360px]">
+      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_340px]">
         <div className="space-y-6">
           <div className="panel overflow-hidden">
             <div className="border-b border-border px-6 py-5">
-              <p className="text-xs uppercase tracking-[0.28em] text-muted">Sales Activity</p>
-              <h2 className="mt-2 font-display text-2xl text-white">Lead performance over the last 7 days</h2>
-            </div>
-            <div className="border-b border-border/80 px-6 py-4">
-              <div className="flex flex-wrap gap-4 text-xs uppercase tracking-[0.18em] text-muted">
-                <LegendPill label="Contacted" tone="bg-gold" />
-                <LegendPill label="Interested" tone="bg-lightGold" />
-                <LegendPill label="Won" tone="bg-white" />
+              <p className="text-xs uppercase tracking-[0.28em] text-muted">Recent Leads</p>
+              <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <h2 className="font-display text-2xl text-white">Latest no-website opportunities</h2>
+                <Link
+                  href="/leads"
+                  className="inline-flex h-11 items-center justify-center rounded-2xl border border-gold/30 bg-background px-5 text-sm font-medium text-white transition hover:border-gold hover:text-lightGold"
+                >
+                  View Leads CRM
+                </Link>
               </div>
             </div>
-            <div className="space-y-3 px-6 py-6">
-              {metrics.activitySeries.map((item) => (
-                <div
-                  key={item.date}
-                  className="grid gap-4 rounded-3xl border border-border/80 bg-background/70 p-4 transition hover:border-gold/30 sm:grid-cols-[92px_minmax(0,1fr)] sm:items-center"
-                >
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.2em] text-muted">{item.date.slice(5)}</p>
-                    <p className="mt-1 text-sm text-white">{formatDayLabel(item.date)}</p>
-                  </div>
-                  <div className="space-y-3">
-                    <MetricBar label="Contacted" value={item.contacted} max={maxActivity} tone="bg-gold" />
-                    <MetricBar label="Interested" value={item.interested} max={maxActivity} tone="bg-lightGold" />
-                    <MetricBar label="Won" value={item.won} max={maxActivity} tone="bg-white" />
+            <div className="divide-y divide-border">
+              {metrics.latestLeads.map((lead) => (
+                <div key={lead.id} className="px-6 py-5">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <p className="font-medium text-white">{lead.name}</p>
+                      <p className="mt-1 text-sm text-muted">{lead.formatted_address ?? "Unknown address"}</p>
+                      <p className="mt-2 text-xs uppercase tracking-[0.2em] text-lightGold">{lead.source_term ?? "No source term"}</p>
+                    </div>
+                    <div className="flex shrink-0 flex-wrap gap-2">
+                      <span className="rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-xs uppercase tracking-[0.2em] text-lightGold">
+                        {lead.rating ?? "-"} rating
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}
+              {metrics.latestLeads.length === 0 ? <p className="px-6 py-10 text-sm text-muted">No leads captured yet.</p> : null}
             </div>
           </div>
 
           <div className="grid gap-6 xl:grid-cols-2">
             <div className="panel overflow-hidden">
               <div className="border-b border-border px-6 py-5">
-                <p className="text-xs uppercase tracking-[0.28em] text-muted">Recent Leads</p>
-                <h2 className="mt-2 font-display text-2xl text-white">Latest opportunities</h2>
+                <p className="text-xs uppercase tracking-[0.28em] text-muted">Call Tracker</p>
+                <h2 className="mt-2 font-display text-2xl text-white">Sales performance lives here now</h2>
               </div>
-              <div className="divide-y divide-border">
-                {metrics.latestLeads.map((lead) => (
-                  <div key={lead.id} className="px-6 py-5">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="font-medium text-white">{lead.name}</p>
-                        <p className="mt-1 text-sm text-muted">{lead.formatted_address ?? "Unknown address"}</p>
-                        <p className="mt-2 text-xs uppercase tracking-[0.2em] text-lightGold">{lead.lead_status}</p>
-                      </div>
-                      <div className="rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-xs uppercase tracking-[0.2em] text-lightGold">
-                        {lead.rating ?? "-"} rating
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                {metrics.latestLeads.length === 0 ? <p className="px-6 py-10 text-sm text-muted">No leads captured yet.</p> : null}
+              <div className="space-y-4 px-6 py-6">
+                <p className="text-sm leading-7 text-muted">
+                  Call outcomes, conversion charts, follow-ups, and closing performance have been moved out of the dashboard so this page stays clean and easier to scan.
+                </p>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <TrackerHint label="Contacted" value={metrics.contactedLeads} />
+                  <TrackerHint label="Interested" value={metrics.interestedLeads} />
+                  <TrackerHint label="Won" value={metrics.wonLeads} />
+                  <TrackerHint label="Follow-ups Due" value={metrics.followUpsDue.length} />
+                </div>
+                <Link
+                  href="/call-tracker"
+                  className="inline-flex h-11 items-center justify-center rounded-2xl border border-gold/30 bg-gold px-5 font-medium text-background transition hover:bg-lightGold"
+                >
+                  Open Call Tracker
+                </Link>
               </div>
             </div>
 
             <div className="panel overflow-hidden">
               <div className="border-b border-border px-6 py-5">
-                <p className="text-xs uppercase tracking-[0.28em] text-muted">Outcome Breakdown</p>
-                <h2 className="mt-2 font-display text-2xl text-white">How calls are resolving</h2>
+                <p className="text-xs uppercase tracking-[0.28em] text-muted">Search Queue</p>
+                <h2 className="mt-2 font-display text-2xl text-white">{metrics.pendingTerms} pending terms</h2>
               </div>
-              <div className="space-y-4 px-6 py-6">
-                {metrics.outcomeBreakdown.length > 0 ? (
-                  metrics.outcomeBreakdown.map((item) => (
-                    <div key={item.label}>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-white">{item.label}</span>
-                        <span className="text-muted">{item.value}</span>
-                      </div>
-                      <div className="mt-2 h-3 overflow-hidden rounded-full bg-background">
-                        <div
-                          className="h-full rounded-full bg-gradient-to-r from-gold to-lightGold"
-                          style={{ width: `${Math.max(8, Math.round((item.value / maxOutcome) * 100))}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-muted">No call outcomes have been logged yet.</p>
-                )}
+              <div className="divide-y divide-border">
+                {metrics.latestSearches.map((term) => (
+                  <div key={term.id} className="px-6 py-5">
+                    <p className="font-medium text-white">{term.term}</p>
+                    <p className="mt-1 text-sm text-muted">
+                      {term.status} - {term.result_count} results - {formatDate(term.searched_at)}
+                    </p>
+                  </div>
+                ))}
+                {metrics.latestSearches.length === 0 ? <p className="px-6 py-10 text-sm text-muted">No search terms in the database yet.</p> : null}
+              </div>
+              <div className="border-t border-border px-6 py-5">
+                <Link
+                  href="/search-terms"
+                  className="inline-flex h-11 items-center justify-center rounded-2xl border border-border bg-background px-5 text-sm font-medium text-white transition hover:border-gold hover:text-lightGold"
+                >
+                  Manage Search Terms
+                </Link>
               </div>
             </div>
           </div>
@@ -157,31 +154,32 @@ export default async function DashboardPage() {
               ))}
               {metrics.followUpsDue.length === 0 ? <p className="px-6 py-10 text-sm text-muted">No follow-ups are due right now.</p> : null}
             </div>
-            <div className="border-t border-border px-6 py-5">
-              <Link
-                href="/call-tracker"
-                className="inline-flex h-11 items-center justify-center rounded-2xl border border-gold/30 bg-gold px-5 font-medium text-background transition hover:bg-lightGold"
-              >
-                Open Call Tracker
-              </Link>
-            </div>
           </div>
 
           <div className="panel overflow-hidden">
             <div className="border-b border-border px-6 py-5">
-              <p className="text-xs uppercase tracking-[0.28em] text-muted">Search Queue</p>
-              <h2 className="mt-2 font-display text-2xl text-white">{metrics.pendingTerms} pending terms</h2>
+              <p className="text-xs uppercase tracking-[0.28em] text-muted">Quick Actions</p>
+              <h2 className="mt-2 font-display text-2xl text-white">Move faster</h2>
             </div>
-            <div className="divide-y divide-border">
-              {metrics.latestSearches.map((term) => (
-                <div key={term.id} className="px-6 py-5">
-                  <p className="font-medium text-white">{term.term}</p>
-                  <p className="mt-1 text-sm text-muted">
-                    {term.status} - {term.result_count} results - {formatDate(term.searched_at)}
-                  </p>
-                </div>
-              ))}
-              {metrics.latestSearches.length === 0 ? <p className="px-6 py-10 text-sm text-muted">No search terms in the database yet.</p> : null}
+            <div className="grid gap-3 px-6 py-6">
+              <Link
+                href="/run-search"
+                className="inline-flex h-11 items-center justify-center rounded-2xl border border-gold/30 bg-gold px-5 font-medium text-background transition hover:bg-lightGold"
+              >
+                Run Search
+              </Link>
+              <Link
+                href="/search-terms"
+                className="inline-flex h-11 items-center justify-center rounded-2xl border border-border bg-background px-5 font-medium text-white transition hover:border-gold hover:text-lightGold"
+              >
+                Add Search Terms
+              </Link>
+              <Link
+                href="/leads"
+                className="inline-flex h-11 items-center justify-center rounded-2xl border border-border bg-background px-5 font-medium text-white transition hover:border-gold hover:text-lightGold"
+              >
+                View Leads CRM
+              </Link>
             </div>
           </div>
         </div>
@@ -190,40 +188,21 @@ export default async function DashboardPage() {
   );
 }
 
-function LegendPill({ label, tone }: { label: string; tone: string }) {
+function DashboardCard({ label, value, footnote }: { label: string; value: string | number; footnote: string }) {
   return (
-    <span className="inline-flex items-center gap-2">
-      <span className={`h-2.5 w-2.5 rounded-full ${tone}`} />
-      <span>{label}</span>
-    </span>
-  );
-}
-
-function MetricBar({
-  label,
-  value,
-  max,
-  tone
-}: {
-  label: string;
-  value: number;
-  max: number;
-  tone: string;
-}) {
-  return (
-    <div>
-      <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.16em] text-muted">
-        <span>{label}</span>
-        <span>{value}</span>
-      </div>
-      <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-card">
-        <div className={`h-full rounded-full ${tone}`} style={{ width: `${Math.max(6, Math.round((value / max) * 100))}%` }} />
-      </div>
+    <div className="panel bg-panel p-5 lg:p-6">
+      <p className="text-xs uppercase tracking-[0.28em] text-muted">{label}</p>
+      <p className="mt-3 font-display text-3xl text-white lg:text-[2.2rem]">{value}</p>
+      <p className="mt-2 text-sm leading-6 text-muted">{footnote}</p>
     </div>
   );
 }
 
-function formatDayLabel(value: string) {
-  const date = new Date(`${value}T00:00:00`);
-  return date.toLocaleDateString("en-ZA", { weekday: "short" });
+function TrackerHint({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-2xl border border-border bg-background/70 px-4 py-3">
+      <p className="text-xs uppercase tracking-[0.22em] text-muted">{label}</p>
+      <p className="mt-2 font-display text-2xl text-white">{value}</p>
+    </div>
+  );
 }
