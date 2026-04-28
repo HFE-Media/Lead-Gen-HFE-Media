@@ -45,9 +45,9 @@ export default async function CallTrackerPage() {
                   className="flex min-w-0 flex-col justify-end rounded-3xl border border-border/80 bg-background/70 p-3 sm:p-4"
                 >
                   <div className="flex flex-1 items-end justify-center gap-2 sm:gap-3">
-                    <VerticalBar label="Contacted" value={item.contacted} max={maxActivity} tone="bg-gold" />
-                    <VerticalBar label="Interested" value={item.interested} max={maxActivity} tone="bg-lightGold" />
-                    <VerticalBar label="Won" value={item.won} max={maxActivity} tone="bg-white" />
+                    <VerticalBar value={item.contacted} max={maxActivity} tone="bg-gold" />
+                    <VerticalBar value={item.interested} max={maxActivity} tone="bg-lightGold" />
+                    <VerticalBar value={item.won} max={maxActivity} tone="bg-white" />
                   </div>
                   <div className="mt-4 border-t border-border/80 pt-3 text-center">
                     <p className="text-xs uppercase tracking-[0.2em] text-muted">{item.date.slice(5)}</p>
@@ -112,12 +112,10 @@ function LegendPill({ label, tone }: { label: string; tone: string }) {
 }
 
 function VerticalBar({
-  label,
   value,
   max,
   tone
 }: {
-  label: string;
   value: number;
   max: number;
   tone: string;
@@ -129,11 +127,8 @@ function VerticalBar({
         <div
           className={`w-full rounded-full ${tone}`}
           style={{ height: `${value === 0 ? 8 : Math.max(10, Math.round((value / max) * 100))}%` }}
-          aria-label={`${label}: ${value}`}
-          title={`${label}: ${value}`}
         />
       </div>
-      <span className="text-[10px] uppercase tracking-[0.16em] text-muted">{label.slice(0, 3)}</span>
     </div>
   );
 }
