@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
-import { Phone, Save } from "lucide-react";
+import { Phone, Save, X } from "lucide-react";
 import { CALL_OUTCOMES, CALL_OUTCOME_LABELS, LEAD_STATUSES, LEAD_STATUS_LABELS } from "@/lib/crm";
 import type { Lead } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
@@ -15,11 +15,11 @@ type LeadsTableProps = {
 export function LeadsTable({ leads, mode = "crm" }: LeadsTableProps) {
   const [items, setItems] = useState(leads);
   const [selectedId, setSelectedId] = useState<string | null>(leads[0]?.id ?? null);
+  const [editorOpen, setEditorOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [search, setSearch] = useState("");
   const [saving, startTransition] = useTransition();
   const [message, setMessage] = useState<string | null>(null);
-  const editorRef = useRef<HTMLElement | null>(null);
 
   const filteredLeads = useMemo(() => {
     return items.filter((lead) => {
@@ -115,15 +115,21 @@ export function LeadsTable({ leads, mode = "crm" }: LeadsTableProps) {
       : `${items.length} no-website leads saved`;
 
   useEffect(() => {
-    if (!selectedLead || typeof window === "undefined" || window.innerWidth >= 1024) {
+    if (!editorOpen || typeof document === "undefined") {
       return;
     }
 
-    editorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, [selectedLead]);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [editorOpen]);
 
   const openLead = (id: string) => {
     setSelectedId(id);
+    setEditorOpen(true);
   };
 
   return (
@@ -153,7 +159,7 @@ export function LeadsTable({ leads, mode = "crm" }: LeadsTableProps) {
         <div className="rounded-2xl border border-gold/20 bg-gold/10 px-4 py-3 text-sm text-lightGold">{message}</div>
       ) : null}
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_420px]">
+      <section>
         <div className="panel overflow-hidden">
           <div className="border-b border-border px-5 py-5 sm:px-6">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -256,26 +262,44 @@ export function LeadsTable({ leads, mode = "crm" }: LeadsTableProps) {
           </div>
         </div>
 
-        <section ref={editorRef} className="panel p-5 sm:p-6">
-          {selectedLead ? (
-            <LeadEditor
-              lead={selectedLead}
-              saving={saving}
-              onChange={updateLead}
-              onSave={() =>
-                startTransition(async () => {
-                  const leadToSave = items.find((item) => item.id === selectedLead.id);
-                  if (leadToSave) {
-                    await saveLead(leadToSave);
-                  }
-                })
-              }
-            />
-          ) : (
-            <p className="text-sm text-muted">Select a lead to manage its call outcome and follow-up details.</p>
-          )}
-        </section>
       </section>
+
+      {editorOpen && selectedLead ? (
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/70 p-3 backdrop-blur-sm sm:p-6">
+          <div className="max-h-[92vh] w-full max-w-4xl overflow-hidden rounded-[28px] border border-border bg-card shadow-glow">
+            <div className="flex items-center justify-between border-b border-border px-5 py-4 sm:px-6">
+              <div>
+                <p className="text-xs uppercase tracking-[0.28em] text-muted">Lead Profile</p>
+                <p className="mt-2 text-sm text-muted">Manage call outcome, follow-up, notes, and sales value.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditorOpen(false)}
+                className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-border bg-background text-white transition hover:border-gold"
+                aria-label="Close lead profile"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="max-h-[calc(92vh-76px)] overflow-y-auto p-5 sm:p-6">
+              <LeadEditor
+                lead={selectedLead}
+                saving={saving}
+                onChange={updateLead}
+                onClose={() => setEditorOpen(false)}
+                onSave={() =>
+                  startTransition(async () => {
+                    const leadToSave = items.find((item) => item.id === selectedLead.id);
+                    if (leadToSave) {
+                      await saveLead(leadToSave);
+                    }
+                  })
+                }
+              />
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -284,11 +308,13 @@ function LeadEditor({
   lead,
   saving,
   onChange,
+  onClose,
   onSave
 }: {
   lead: Lead;
   saving: boolean;
   onChange: (id: string, field: keyof Lead, value: string | number | null) => void;
+  onClose: () => void;
   onSave: () => void;
 }) {
   return (
@@ -315,6 +341,13 @@ function LeadEditor({
           >
             <Save className="h-4 w-4" />
             {saving ? "Saving..." : "Save Update"}
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex h-11 items-center gap-2 rounded-2xl border border-border bg-background px-4 font-medium text-white transition hover:border-gold"
+          >
+            Close
           </button>
         </div>
       </div>
