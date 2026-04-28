@@ -325,10 +325,10 @@ function LeadEditor({
       </div>
 
       <div className="space-y-4">
-        <div className="flex flex-wrap gap-3">
+        <div className="grid grid-cols-2 gap-3">
           <a
             href={lead.formatted_phone_number ? `tel:${lead.formatted_phone_number}` : undefined}
-            className="inline-flex h-11 items-center gap-2 rounded-2xl border border-gold/30 bg-gold px-4 text-sm font-medium text-background transition hover:bg-lightGold"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-gold/30 bg-gold px-4 text-sm font-medium text-background transition hover:bg-lightGold"
           >
             <Phone className="h-4 w-4" />
             Call Lead
@@ -337,7 +337,7 @@ function LeadEditor({
             type="button"
             onClick={onSave}
             disabled={saving}
-            className="inline-flex h-11 items-center gap-2 rounded-2xl border border-border bg-background px-4 text-sm font-medium text-white transition hover:border-gold disabled:opacity-50"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-border bg-background px-4 text-sm font-medium text-white transition hover:border-gold disabled:opacity-50"
           >
             <Save className="h-4 w-4" />
             {saving ? "Saving..." : "Save Update"}
