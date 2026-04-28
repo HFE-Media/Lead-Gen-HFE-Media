@@ -418,15 +418,6 @@ function LeadEditor({
         />
       </Field>
 
-      <Field label="Call notes">
-        <textarea
-          value={lead.lead_notes ?? ""}
-          onChange={(event) => onChange(lead.id, "lead_notes", event.target.value || null)}
-          rows={6}
-          placeholder="Summarise the call, objections, next step, and any quote details."
-          className="w-full rounded-3xl border border-border bg-background px-4 py-4 text-white outline-none transition focus:border-gold"
-        />
-      </Field>
     </div>
   );
 }
