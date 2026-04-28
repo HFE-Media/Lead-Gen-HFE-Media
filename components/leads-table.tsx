@@ -267,17 +267,7 @@ export function LeadsTable({ leads, mode = "crm" }: LeadsTableProps) {
       {editorOpen && selectedLead ? (
         <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/70 p-3 backdrop-blur-sm sm:p-6">
           <div className="max-h-[92vh] w-full max-w-4xl overflow-hidden rounded-[28px] border border-border bg-card shadow-glow">
-            <div className="flex items-center justify-end border-b border-border px-5 py-4 sm:px-6">
-              <button
-                type="button"
-                onClick={() => setEditorOpen(false)}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-border bg-background text-white transition hover:border-gold"
-                aria-label="Close lead profile"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            <div className="max-h-[calc(92vh-76px)] overflow-y-auto p-5 sm:p-6">
+            <div className="max-h-[92vh] overflow-y-auto p-5 sm:p-6">
               <LeadEditor
                 lead={selectedLead}
                 saving={saving}
@@ -315,12 +305,23 @@ function LeadEditor({
 }) {
   return (
     <div className="space-y-5">
-      <div className="flex flex-col gap-4">
+      <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs uppercase tracking-[0.28em] text-muted">Lead Profile</p>
           <h2 className="mt-2 font-display text-3xl text-white">{lead.name}</h2>
           <p className="mt-2 text-sm leading-6 text-muted">{lead.formatted_address ?? "Unknown address"}</p>
         </div>
+        <button
+          type="button"
+          onClick={onClose}
+          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-border bg-background text-white transition hover:border-gold"
+          aria-label="Close lead profile"
+        >
+          <X className="h-5 w-5" />
+        </button>
+      </div>
+
+      <div className="flex flex-col gap-4">
         <div className="flex flex-wrap gap-3">
           <a
             href={lead.formatted_phone_number ? `tel:${lead.formatted_phone_number}` : undefined}
@@ -337,13 +338,6 @@ function LeadEditor({
           >
             <Save className="h-4 w-4" />
             {saving ? "Saving..." : "Save Update"}
-          </button>
-          <button
-            type="button"
-            onClick={onClose}
-            className="inline-flex h-11 items-center gap-2 rounded-2xl border border-border bg-background px-4 font-medium text-white transition hover:border-gold"
-          >
-            Close
           </button>
         </div>
       </div>
