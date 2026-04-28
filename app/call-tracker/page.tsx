@@ -87,7 +87,7 @@ export default async function CallTrackerPage() {
         </div>
       </section>
 
-      <LeadsTable leads={leads} mode="tracker" />
+      <LeadsTable leads={leads} mode="tracker" hideHeader />
     </div>
   );
 }

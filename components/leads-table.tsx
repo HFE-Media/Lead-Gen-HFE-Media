@@ -10,9 +10,10 @@ import { formatDate } from "@/lib/utils";
 type LeadsTableProps = {
   leads: Lead[];
   mode?: "crm" | "tracker";
+  hideHeader?: boolean;
 };
 
-export function LeadsTable({ leads, mode = "crm" }: LeadsTableProps) {
+export function LeadsTable({ leads, mode = "crm", hideHeader = false }: LeadsTableProps) {
   const [items, setItems] = useState(leads);
   const [selectedId, setSelectedId] = useState<string | null>(leads[0]?.id ?? null);
   const [editorOpen, setEditorOpen] = useState(false);
@@ -134,26 +135,28 @@ export function LeadsTable({ leads, mode = "crm" }: LeadsTableProps) {
 
   return (
     <div className="space-y-6">
-      <section className="panel p-5 sm:p-6">
-        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-[0.28em] text-muted">{headerTitle}</p>
-            <h1 className="mt-2 font-display text-3xl text-white">{headerSubtitle}</h1>
+      {!hideHeader ? (
+        <section className="panel p-5 sm:p-6">
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-[0.28em] text-muted">{headerTitle}</p>
+              <h1 className="mt-2 font-display text-3xl text-white">{headerSubtitle}</h1>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <SummaryChip label="Contacted" value={summary.contacted} />
+              <SummaryChip label="Interested" value={summary.interested} />
+              <SummaryChip label="Won" value={summary.won} />
+              <SummaryChip label="Follow-ups" value={summary.followUps} />
+              <Link
+                href="/api/leads/export"
+                className="inline-flex h-11 items-center justify-center rounded-2xl border border-gold/30 bg-gold px-5 font-medium text-background transition hover:bg-lightGold"
+              >
+                Export CSV
+              </Link>
+            </div>
           </div>
-          <div className="flex flex-wrap gap-3">
-            <SummaryChip label="Contacted" value={summary.contacted} />
-            <SummaryChip label="Interested" value={summary.interested} />
-            <SummaryChip label="Won" value={summary.won} />
-            <SummaryChip label="Follow-ups" value={summary.followUps} />
-            <Link
-              href="/api/leads/export"
-              className="inline-flex h-11 items-center justify-center rounded-2xl border border-gold/30 bg-gold px-5 font-medium text-background transition hover:bg-lightGold"
-            >
-              Export CSV
-            </Link>
-          </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
 
       {message ? (
         <div className="rounded-2xl border border-gold/20 bg-gold/10 px-4 py-3 text-sm text-lightGold">{message}</div>
