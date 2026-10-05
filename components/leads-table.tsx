@@ -13,7 +13,7 @@ type LeadsTableProps = {
   hideHeader?: boolean;
 };
 
-type LeadSortOption = "newest" | "oldest" | "follow_up" | "pipeline";
+type LeadSortOption = "uncontacted" | "newest" | "oldest" | "follow_up" | "pipeline";
 
 const PIPELINE_ORDER = new Map(LEAD_STATUSES.map((status, index) => [status, index]));
 
@@ -22,7 +22,7 @@ export function LeadsTable({ leads, mode = "crm", hideHeader = false }: LeadsTab
   const [selectedId, setSelectedId] = useState<string | null>(leads[0]?.id ?? null);
   const [editorOpen, setEditorOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [sortBy, setSortBy] = useState<LeadSortOption>("newest");
+  const [sortBy, setSortBy] = useState<LeadSortOption>(mode === "crm" ? "uncontacted" : "newest");
   const [search, setSearch] = useState("");
   const [saving, startTransition] = useTransition();
   const [message, setMessage] = useState<string | null>(null);
@@ -58,6 +58,13 @@ export function LeadsTable({ leads, mode = "crm", hideHeader = false }: LeadsTab
 
     return filtered.sort((first, second) => {
       const newestFirst = Date.parse(second.created_at) - Date.parse(first.created_at);
+
+      if (sortBy === "uncontacted") {
+        const firstIsUncontacted = first.lead_status === "new" && !first.call_outcome;
+        const secondIsUncontacted = second.lead_status === "new" && !second.call_outcome;
+
+        return Number(secondIsUncontacted) - Number(firstIsUncontacted) || newestFirst;
+      }
 
       if (sortBy === "oldest") {
         return Date.parse(first.created_at) - Date.parse(second.created_at);
@@ -231,6 +238,7 @@ export function LeadsTable({ leads, mode = "crm", hideHeader = false }: LeadsTab
                   aria-label="Sort leads"
                   className="h-11 rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold"
                 >
+                  {mode === "crm" ? <option value="uncontacted">Uncontacted first</option> : null}
                   <option value="newest">Newest first</option>
                   <option value="oldest">Oldest first</option>
                   <option value="follow_up">Follow-up date</option>
