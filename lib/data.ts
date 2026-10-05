@@ -203,11 +203,7 @@ export async function getLeads() {
   }
 
   const supabase = getSupabaseAdmin();
-  const { data, error } = await supabase
-    .from("leads")
-    .select("*")
-    .order("follow_up_at", { ascending: true, nullsFirst: false })
-    .order("created_at", { ascending: false });
+  const { data, error } = await supabase.from("leads").select("*").order("created_at", { ascending: false });
 
   if (error) {
     throw new Error(error.message);

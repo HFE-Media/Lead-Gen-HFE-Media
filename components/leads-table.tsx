@@ -13,17 +13,22 @@ type LeadsTableProps = {
   hideHeader?: boolean;
 };
 
+type LeadSortOption = "newest" | "oldest" | "follow_up" | "pipeline";
+
+const PIPELINE_ORDER = new Map(LEAD_STATUSES.map((status, index) => [status, index]));
+
 export function LeadsTable({ leads, mode = "crm", hideHeader = false }: LeadsTableProps) {
   const [items, setItems] = useState(leads);
   const [selectedId, setSelectedId] = useState<string | null>(leads[0]?.id ?? null);
   const [editorOpen, setEditorOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<LeadSortOption>("newest");
   const [search, setSearch] = useState("");
   const [saving, startTransition] = useTransition();
   const [message, setMessage] = useState<string | null>(null);
 
   const filteredLeads = useMemo(() => {
-    return items.filter((lead) => {
+    const filtered = items.filter((lead) => {
       if (mode === "tracker" && lead.lead_status === "new" && !lead.follow_up_at && !lead.last_call_at) {
         return false;
       }
@@ -50,7 +55,39 @@ export function LeadsTable({ leads, mode = "crm", hideHeader = false }: LeadsTab
 
       return true;
     });
-  }, [items, mode, search, statusFilter]);
+
+    return filtered.sort((first, second) => {
+      const newestFirst = Date.parse(second.created_at) - Date.parse(first.created_at);
+
+      if (sortBy === "oldest") {
+        return Date.parse(first.created_at) - Date.parse(second.created_at);
+      }
+
+      if (sortBy === "follow_up") {
+        if (!first.follow_up_at && !second.follow_up_at) {
+          return newestFirst;
+        }
+
+        if (!first.follow_up_at) {
+          return 1;
+        }
+
+        if (!second.follow_up_at) {
+          return -1;
+        }
+
+        return Date.parse(first.follow_up_at) - Date.parse(second.follow_up_at) || newestFirst;
+      }
+
+      if (sortBy === "pipeline") {
+        return (
+          (PIPELINE_ORDER.get(first.lead_status) ?? 0) - (PIPELINE_ORDER.get(second.lead_status) ?? 0) || newestFirst
+        );
+      }
+
+      return newestFirst;
+    });
+  }, [items, mode, search, sortBy, statusFilter]);
 
   const selectedLead = filteredLeads.find((lead) => lead.id === selectedId) ?? filteredLeads[0] ?? null;
 
@@ -174,18 +211,32 @@ export function LeadsTable({ leads, mode = "crm", hideHeader = false }: LeadsTab
                 placeholder="Search name, phone, address, source term"
                 className="h-11 w-full rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold md:max-w-md"
               />
-              <select
-                value={statusFilter}
-                onChange={(event) => setStatusFilter(event.target.value)}
-                className="h-11 rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold"
-              >
-                <option value="all">All statuses</option>
-                {LEAD_STATUSES.map((status) => (
-                  <option key={status} value={status}>
-                    {LEAD_STATUS_LABELS[status]}
-                  </option>
-                ))}
-              </select>
+              <div className="grid w-full gap-3 sm:grid-cols-2 md:w-auto">
+                <select
+                  value={statusFilter}
+                  onChange={(event) => setStatusFilter(event.target.value)}
+                  aria-label="Filter by status"
+                  className="h-11 rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold"
+                >
+                  <option value="all">All statuses</option>
+                  {LEAD_STATUSES.map((status) => (
+                    <option key={status} value={status}>
+                      {LEAD_STATUS_LABELS[status]}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={sortBy}
+                  onChange={(event) => setSortBy(event.target.value as LeadSortOption)}
+                  aria-label="Sort leads"
+                  className="h-11 rounded-2xl border border-border bg-background px-4 text-white outline-none transition focus:border-gold"
+                >
+                  <option value="newest">Newest first</option>
+                  <option value="oldest">Oldest first</option>
+                  <option value="follow_up">Follow-up date</option>
+                  <option value="pipeline">Pipeline stage</option>
+                </select>
+              </div>
             </div>
           </div>
 
