@@ -152,7 +152,7 @@ export function LeadsTable({ leads, mode = "crm", hideHeader = false }: LeadsTab
   const headerSubtitle =
     mode === "tracker"
       ? "Track final outcomes, follow-ups, and value for every lead."
-      : `${items.length} no-website leads saved`;
+      : "Manage Your Lead Pipeline";
 
   useEffect(() => {
     if (!editorOpen || typeof document === "undefined") {
