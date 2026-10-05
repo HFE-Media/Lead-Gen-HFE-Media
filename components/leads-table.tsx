@@ -469,16 +469,18 @@ function StatusChip({
   label: string;
   tone: Lead["lead_status"] | "neutral";
 }) {
-  const className =
-    tone === "won"
-      ? "border-gold/40 bg-gold/10 text-lightGold"
-      : tone === "interested" || tone === "demo_booked" || tone === "quoted"
-        ? "border-white/10 bg-white/[0.04] text-white"
-        : tone === "lost"
-          ? "border-border bg-background text-muted"
-          : "border-border bg-white/[0.03] text-muted";
+  const toneClasses: Record<typeof tone, string> = {
+    new: "border-white/10 bg-white/[0.04] text-muted",
+    contacted: "border-[#9A6A2B]/50 bg-[#9A6A2B]/15 text-[#D7A85B]",
+    interested: "border-lightGold/40 bg-lightGold/10 text-lightGold",
+    demo_booked: "border-[#D97706]/50 bg-[#D97706]/15 text-[#FDBA74]",
+    quoted: "border-gold/50 bg-gold/15 text-[#FFE29A]",
+    won: "border-[#3F8F5A]/50 bg-[#3F8F5A]/15 text-[#86D99B]",
+    lost: "border-[#A94B4B]/50 bg-[#A94B4B]/15 text-[#F29A9A]",
+    neutral: "border-border bg-white/[0.03] text-muted"
+  };
 
-  return <span className={`rounded-full border px-3 py-1 text-xs uppercase tracking-[0.2em] ${className}`}>{label}</span>;
+  return <span className={`rounded-full border px-3 py-1 text-xs uppercase tracking-[0.2em] ${toneClasses[tone]}`}>{label}</span>;
 }
 
 function formatMoney(value: number | null) {
