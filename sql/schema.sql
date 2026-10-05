@@ -77,8 +77,8 @@ create table if not exists public.leads (
   website text,
   rating numeric(3,2),
   source_term text,
-  lead_status text not null default 'new' check (lead_status in ('new', 'contacted', 'interested', 'quoted', 'won', 'lost')),
-  call_outcome text check (call_outcome in ('no_answer', 'wrong_number', 'not_interested', 'call_back_later', 'interested', 'quoted', 'won', 'lost')),
+  lead_status text not null default 'new' check (lead_status in ('new', 'contacted', 'interested', 'demo_booked', 'quoted', 'won', 'lost')),
+  call_outcome text check (call_outcome in ('no_answer', 'wrong_number', 'gatekeeper', 'existing_website', 'not_interested', 'call_back_later', 'info_requested', 'interested', 'demo_booked', 'quoted', 'won', 'lost')),
   last_call_at timestamptz,
   lead_notes text,
   follow_up_at timestamptz,
@@ -102,12 +102,12 @@ alter table public.leads add column if not exists updated_at timestamptz not nul
 alter table public.leads drop constraint if exists leads_lead_status_check;
 alter table public.leads
   add constraint leads_lead_status_check
-  check (lead_status in ('new', 'contacted', 'interested', 'quoted', 'won', 'lost'));
+  check (lead_status in ('new', 'contacted', 'interested', 'demo_booked', 'quoted', 'won', 'lost'));
 
 alter table public.leads drop constraint if exists leads_call_outcome_check;
 alter table public.leads
   add constraint leads_call_outcome_check
-  check (call_outcome in ('no_answer', 'wrong_number', 'not_interested', 'call_back_later', 'interested', 'quoted', 'won', 'lost'));
+  check (call_outcome in ('no_answer', 'wrong_number', 'gatekeeper', 'existing_website', 'not_interested', 'call_back_later', 'info_requested', 'interested', 'demo_booked', 'quoted', 'won', 'lost'));
 
 create unique index if not exists leads_place_id_unique
   on public.leads (place_id)

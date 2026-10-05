@@ -55,8 +55,10 @@ export function LeadsTable({ leads, mode = "crm", hideHeader = false }: LeadsTab
   const selectedLead = filteredLeads.find((lead) => lead.id === selectedId) ?? filteredLeads[0] ?? null;
 
   const summary = useMemo(() => {
-    const contacted = items.filter((lead) => ["contacted", "interested", "quoted", "won", "lost"].includes(lead.lead_status)).length;
-    const interested = items.filter((lead) => ["interested", "quoted", "won"].includes(lead.lead_status)).length;
+    const contacted = items.filter((lead) =>
+      ["contacted", "interested", "demo_booked", "quoted", "won", "lost"].includes(lead.lead_status)
+    ).length;
+    const interested = items.filter((lead) => ["interested", "demo_booked", "quoted", "won"].includes(lead.lead_status)).length;
     const won = items.filter((lead) => lead.lead_status === "won").length;
     const followUps = items.filter((lead) => Boolean(lead.follow_up_at)).length;
 
@@ -470,7 +472,7 @@ function StatusChip({
   const className =
     tone === "won"
       ? "border-gold/40 bg-gold/10 text-lightGold"
-      : tone === "interested" || tone === "quoted"
+      : tone === "interested" || tone === "demo_booked" || tone === "quoted"
         ? "border-white/10 bg-white/[0.04] text-white"
         : tone === "lost"
           ? "border-border bg-background text-muted"

@@ -82,8 +82,14 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
     supabase.from("leads").select("*", { count: "exact", head: true }),
     supabase.from("search_terms").select("*", { count: "exact", head: true }).eq("status", "pending"),
     supabase.from("search_terms").select("*", { count: "exact", head: true }).eq("status", "searched"),
-    supabase.from("leads").select("*", { count: "exact", head: true }).in("lead_status", ["contacted", "interested", "quoted", "won", "lost"]),
-    supabase.from("leads").select("*", { count: "exact", head: true }).in("lead_status", ["interested", "quoted", "won"]),
+    supabase
+      .from("leads")
+      .select("*", { count: "exact", head: true })
+      .in("lead_status", ["contacted", "interested", "demo_booked", "quoted", "won", "lost"]),
+    supabase
+      .from("leads")
+      .select("*", { count: "exact", head: true })
+      .in("lead_status", ["interested", "demo_booked", "quoted", "won"]),
     supabase.from("leads").select("*", { count: "exact", head: true }).eq("lead_status", "won"),
     supabase.from("leads").select("*").order("created_at", { ascending: false }).limit(8),
     supabase.from("search_terms").select("*").order("created_at", { ascending: false }).limit(8),
@@ -128,11 +134,11 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
       const bucket = dateMap.get(key);
 
       if (bucket) {
-        if (["contacted", "interested", "quoted", "won", "lost"].includes(row.lead_status)) {
+        if (["contacted", "interested", "demo_booked", "quoted", "won", "lost"].includes(row.lead_status)) {
           bucket.contacted += 1;
         }
 
-        if (["interested", "quoted", "won"].includes(row.lead_status)) {
+        if (["interested", "demo_booked", "quoted", "won"].includes(row.lead_status)) {
           bucket.interested += 1;
         }
 
